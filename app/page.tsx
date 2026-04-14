@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, Check, Minus, Plus, AlertTriangle, ArrowRight, ArrowLeft, Info, X, ExternalLink } from "lucide-react"
+import AppHeader from "./components/AppHeader"
 
 // 숫자 포맷 함수 (천단위 콤마)
 function formatNumber(value: string): string {
@@ -122,6 +123,7 @@ export default function TaxCalculator() {
   const calculatorPanelRef = useRef<HTMLDivElement | null>(null)
   const infoRef = useRef<HTMLDivElement | null>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   // 결과 화면 탭 상태
   const [resultTab, setResultTab] = useState<"summary" | "incomeDeduction" | "taxCredit" | "prepaidTax">("summary")
@@ -357,18 +359,17 @@ export default function TaxCalculator() {
   }, [activeTab])
 
   useEffect(() => {
-    const el = infoRef.current
-    if (!el) return
-
     const handleScroll = () => {
-      const docHeight = el.scrollHeight - el.clientHeight
-      const progress = docHeight > 0 ? (el.scrollTop / docHeight) * 100 : 0
+      const infoEl = infoRef.current
+      if (!infoEl) return
+      const scrollTop = window.scrollY
+      const maxScroll = infoEl.scrollHeight - window.innerHeight
+      const progress = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0
       setScrollProgress(Math.min(100, Math.max(0, progress)))
     }
-
     handleScroll()
-    el.addEventListener("scroll", handleScroll, { passive: true })
-    return () => el.removeEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   // 원천징수세 자동계산 (부업소득 없이 근로소득만으로 계산한 결정세액 기준)
@@ -813,7 +814,7 @@ export default function TaxCalculator() {
   }
 
   const infoSection = (
-    <div className="p-5 space-y-0">
+    <div className="p-5 pt-12 space-y-0">
       <h1 className="text-2xl font-bold text-gray-900">종합소득세 설명</h1>
 
       {/* 1. 종합소득세란? */}
@@ -837,11 +838,11 @@ export default function TaxCalculator() {
 
         <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
           <table className="w-full">
-            <thead className="bg-[#3182F6]">
+            <thead className="bg-[#e3eefc]">
               <tr>
-                <th className="text-left text-sm font-medium text-white px-3 py-2 w-[34%]">항목</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">연말정산</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">종합소득세 신고</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">연말정산</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">종합소득세 신고</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -885,10 +886,10 @@ export default function TaxCalculator() {
 
         <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
           <table className="w-full">
-            <thead className="bg-[#3182F6]">
+            <thead className="bg-[#e3eefc]">
               <tr>
-                <th className="text-left text-sm font-medium text-white px-3 py-2 w-[34%]">단계</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">설명</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">단계</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">설명</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -1038,11 +1039,11 @@ export default function TaxCalculator() {
             예시 1 — 연봉 5,000만원 + 부업 수입 1,000만원, 소득공제 1,500만원
           </div>
           <table className="w-full">
-            <thead className="bg-[#3182F6]">
+            <thead className="bg-[#e3eefc]">
               <tr>
-                <th className="text-left text-sm font-medium text-white px-3 py-2 w-[34%]">항목</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">합산 신고</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">분리과세</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">합산 신고</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">분리과세</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -1080,11 +1081,11 @@ export default function TaxCalculator() {
             예시 2 — 연봉 1,500만원 + 부업 수입 200만원, 소득공제 1,200만원
           </div>
           <table className="w-full">
-            <thead className="bg-[#3182F6]">
+            <thead className="bg-[#e3eefc]">
               <tr>
-                <th className="text-left text-sm font-medium text-white px-3 py-2 w-[34%]">항목</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">합산 신고</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">분리과세</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">합산 신고</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">분리과세</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -1136,10 +1137,10 @@ export default function TaxCalculator() {
         {showTaxRateTable && (
           <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mt-3">
             <table className="w-full">
-              <thead className="bg-[#3182F6]">
+              <thead className="bg-[#e3eefc]">
                 <tr>
-                  <th className="text-left text-sm font-medium text-white px-3 py-2 w-[55%]">과세표준</th>
-                  <th className="text-left text-sm font-medium text-white px-3 py-2">세율</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[55%]">과세표준</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">세율</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -1340,10 +1341,10 @@ export default function TaxCalculator() {
 
         <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
           <table className="w-full">
-            <thead className="bg-[#3182F6]">
+            <thead className="bg-[#e3eefc]">
               <tr>
-                <th className="text-left text-sm font-medium text-white px-3 py-2 w-[28%]">용어</th>
-                <th className="text-left text-sm font-medium text-white px-3 py-2">설명</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[28%]">용어</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">설명</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -1736,12 +1737,10 @@ export default function TaxCalculator() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <AppHeader scrollProgress={scrollProgress} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       {/* 768px 이상: 좌측 메인(정보 항상 표시) */}
       <div className="hidden md:block pr-[440px]">
-        <div ref={infoRef} className="max-w-[1100px] mx-auto px-8 py-8 h-screen overflow-y-auto">
-          <div className="sticky top-0 z-10 h-1 bg-gray-200">
-            <div className="h-1 bg-[#3182F6] transition-all duration-100" style={{ width: `${scrollProgress}%` }} />
-          </div>
+        <div ref={infoRef} className="max-w-[1100px] mx-auto px-8 py-8">
           {infoSection}
         </div>
       </div>
