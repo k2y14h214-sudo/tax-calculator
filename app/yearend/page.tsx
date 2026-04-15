@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ChevronDown, Check, Minus, Plus, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react"
+import { ChevronDown, Check, Minus, Plus, AlertTriangle, ArrowRight, ArrowLeft, Info, X } from "lucide-react"
 import AppHeader from "../components/AppHeader"
 import {
   calculateYearEndTax,
@@ -29,6 +29,151 @@ function parseNumber(value: string): number {
 // ────────────────────────────────────────────────────────────────
 // 서브 컴포넌트
 // ────────────────────────────────────────────────────────────────
+
+function FloatingTooltipCard({
+  title,
+  body,
+  anchorEl,
+  onClose,
+}: {
+  title: string
+  body: string
+  anchorEl: HTMLElement
+  onClose: () => void
+}) {
+  const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null)
+  const [maxHeight, setMaxHeight] = useState<number>(240)
+
+  useEffect(() => {
+    const update = () => {
+      const rect = anchorEl.getBoundingClientRect()
+      const preferredWidth = 300
+      const minWidth = 220
+      const padding = 12
+      const viewportW = window.innerWidth
+      const viewportH = window.innerHeight
+      const width = Math.max(minWidth, Math.min(preferredWidth, viewportW - padding * 2))
+      const left = Math.min(viewportW - padding - width, Math.max(padding, rect.left))
+      const top = Math.min(viewportH - padding - 120, rect.bottom + 8)
+      setPos({ left, top, width })
+      setMaxHeight(Math.max(100, viewportH - top - padding))
+    }
+    update()
+    window.addEventListener("resize", update)
+    window.addEventListener("scroll", update, true)
+    return () => {
+      window.removeEventListener("resize", update)
+      window.removeEventListener("scroll", update, true)
+    }
+  }, [anchorEl])
+
+  useEffect(() => {
+    const onPointerDown = (e: MouseEvent) => {
+      const target = e.target as Node | null
+      if (!target) return
+      if (anchorEl.contains(target)) return
+      const el = document.getElementById("ye-floating-tooltip")
+      if (el && el.contains(target)) return
+      onClose()
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+    document.addEventListener("mousedown", onPointerDown, true)
+    document.addEventListener("keydown", onKeyDown)
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown, true)
+      document.removeEventListener("keydown", onKeyDown)
+    }
+  }, [anchorEl, onClose])
+
+  if (!pos) return null
+
+  return (
+    <div
+      id="ye-floating-tooltip"
+      className="fixed z-[60]"
+      style={{ left: pos.left, top: pos.top, width: pos.width }}
+    >
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <p className="text-sm font-semibold text-gray-900">{title}</p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1"
+            aria-label="닫기"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div
+          className="text-sm text-gray-700 leading-relaxed overflow-auto pr-1"
+          style={{ maxHeight }}
+        >
+          {body}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 결과 화면 행 컴포넌트
+function InfoRow({
+  label,
+  value,
+  minus,
+  bold,
+  highlight,
+  dimmed,
+  infoKey,
+  onInfoClick,
+  tag,
+}: {
+  label: string
+  value: number
+  minus?: boolean
+  bold?: boolean
+  highlight?: "blue" | "red"
+  dimmed?: boolean
+  infoKey?: string
+  onInfoClick?: (key: string, el: HTMLElement) => void
+  tag?: React.ReactNode
+}) {
+  const textColor =
+    highlight === "blue"
+      ? "text-[#3182F6]"
+      : highlight === "red"
+      ? "text-red-500"
+      : dimmed
+      ? "text-gray-300"
+      : "text-gray-800"
+
+  return (
+    <div className={`flex justify-between items-center ${dimmed ? "opacity-60" : ""}`}>
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+        <span className={`text-sm ${bold ? "font-medium" : ""} text-gray-600 truncate`}>
+          {label}
+        </span>
+        {tag}
+        {infoKey && onInfoClick && (
+          <button
+            type="button"
+            onClick={(e) => onInfoClick(infoKey, e.currentTarget)}
+            className="w-5 h-5 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 flex items-center justify-center shrink-0"
+            aria-label={`${label} 설명`}
+          >
+            <Info className="w-3 h-3 text-[#3182F6]" />
+          </button>
+        )}
+      </div>
+      <span className={`text-sm ml-2 shrink-0 ${bold ? "font-semibold" : ""} ${textColor}`}>
+        {minus && value > 0 && "-"}
+        {value.toLocaleString("ko-KR")}원
+      </span>
+    </div>
+  )
+}
 
 function AccordionCard({
   title,
@@ -251,6 +396,10 @@ export default function YearEndCalculator() {
   // ── 결과 ────────────────────────────────────────────────────
   const [showResult, setShowResult] = useState(false)
   const [calculatedResult, setCalculatedResult] = useState<YearEndTaxResult | null>(null)
+  const [resultTab, setResultTab] = useState<"summary" | "incomeDeduction" | "taxCredit" | "prepaidTax">("summary")
+  const [activeTooltipKey, setActiveTooltipKey] = useState<string | null>(null)
+  const [tooltipAnchorEl, setTooltipAnchorEl] = useState<HTMLElement | null>(null)
+  const [isWithholdingEstimated, setIsWithholdingEstimated] = useState(false)
 
   // ── 완료 체크 ────────────────────────────────────────────────
   const isIncomeComplete = !!salary
@@ -464,6 +613,10 @@ export default function YearEndCalculator() {
     })
 
     setCalculatedResult(result)
+    setIsWithholdingEstimated(!withholdingTax)
+    setResultTab("summary")
+    setActiveTooltipKey(null)
+    setTooltipAnchorEl(null)
     setShowResult(true)
 
     // 스크롤 상단으로
@@ -478,114 +631,348 @@ export default function YearEndCalculator() {
     })
   }
 
+  // ── 탭 전환 핸들러 ──────────────────────────────────────────
+  const handleResultTabChange = (tab: typeof resultTab) => {
+    setResultTab(tab)
+    setActiveTooltipKey(null)
+    setTooltipAnchorEl(null)
+    requestAnimationFrame(() => {
+      const isDesktop =
+        typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches
+      if (isDesktop) {
+        calculatorPanelRef.current?.scrollTo({ top: 0, behavior: "auto" })
+      } else {
+        window.scrollTo({ top: 0, behavior: "auto" })
+      }
+    })
+  }
+
+  // ── 툴팁 핸들러 ─────────────────────────────────────────────
+  const handleInfoClick = (key: string, el: HTMLElement) => {
+    setActiveTooltipKey((prev) => (prev === key ? null : key))
+    setTooltipAnchorEl(el)
+  }
+
+  const tooltipData: Record<string, { title: string; body: string }> = {
+    // 요약 탭
+    "sum.salary":     { title: "총급여", body: "세전 연봉이에요." },
+    "sum.incDed":     { title: "소득공제", body: "소득에서 미리 빼주는 금액이에요. 많을수록 세금 기준이 낮아져요." },
+    "sum.taxBase":    { title: "과세표준", body: "실제로 세금을 매기는 기준 금액이에요." },
+    "sum.calcTax":    { title: "산출세액", body: "과세표준에 세율을 곱한 기본 세금이에요." },
+    "sum.taxCredit":  { title: "세액공제", body: "기본 세금에서 직접 빼주는 금액이에요." },
+    "sum.finalTax":   { title: "결정세액", body: "최종적으로 내야 할 세금이에요." },
+    "sum.prepaid":    { title: "기납부세액", body: "회사가 매달 월급에서 미리 뗀 세금이에요." },
+    "sum.final":      { title: "최종 납부/환급", body: "결정세액과 기납부세액의 차액이에요." },
+    // 소득공제 탭
+    "inc.earned":     { title: "근로소득공제", body: "직장인이라면 누구나 자동으로 받아요. 연봉 구간에 따라 금액이 달라져요." },
+    "inc.personal":   { title: "인적공제", body: "본인+부양가족 1인당 150만원씩 빼줘요." },
+    "inc.pension":    { title: "국민연금", body: "납입한 국민연금 보험료 전액을 빼줘요. 연봉의 4.5%예요." },
+    "inc.health":     { title: "건강보험료", body: "납입한 건강·장기요양·고용보험료 전액을 빼줘요." },
+    "inc.housing":    { title: "주택청약저축", body: "무주택 세대주가 납입한 금액의 40%. 연 300만원 한도예요." },
+    "inc.lease":      { title: "전세자금대출", body: "전세대출 원금+이자 상환액의 40%. 연 400만원 한도예요." },
+    "inc.mortgage":   { title: "주담대 이자", body: "주택담보대출 이자 상환액. 연 최대 2,000만원까지 공제돼요." },
+    "inc.card":       { title: "신용카드 등", body: "연봉의 25% 초과 사용액부터 공제. 신용카드 15%, 체크카드 30%예요." },
+    // 세액공제 탭
+    "tax.earned":     { title: "근로소득 세액공제", body: "직장인이라면 자동으로 받아요. 산출세액의 일정 비율을 빼줘요." },
+    "tax.child":      { title: "자녀 세액공제", body: "만 7세 이상 자녀 1명 15만, 2명 35만, 3명 이상 65만원이에요." },
+    "tax.pension":    { title: "연금저축·IRP", body: "납입액의 12~15%를 세금에서 빼줘요. 합산 연 900만원 한도예요." },
+    "tax.insurance":  { title: "보장성 보험료", body: "실손·암보험 등 납입액의 12%. 연 100만원 한도예요." },
+    "tax.medical":    { title: "의료비", body: "연봉의 3% 초과 병원비의 15%를 빼줘요." },
+    "tax.education":  { title: "교육비", body: "자녀 학교·유치원 비용의 15%를 빼줘요." },
+    "tax.donation":   { title: "기부금", body: "기부액의 15~30%를 빼줘요." },
+    "tax.rent":       { title: "월세", body: "월세액의 15~17%를 빼줘요. 연 1,000만원 한도예요." },
+    "tax.marriage":   { title: "혼인", body: "2024~2026년 혼인신고 시 1회 50만원 공제예요." },
+    // 기납부세액 탭
+    "pre.withholding": { title: "근로소득 원천징수세액", body: "회사가 매달 월급에서 미리 뗀 세금이에요." },
+  }
+
   // ── 계산기 컨텐츠 ────────────────────────────────────────────
   const calculatorContent = showResult && calculatedResult ? (
     // ── 결과 화면 ──────────────────────────────────────────────
-    <div className="p-5 space-y-4">
-      {/* 다시 계산하기 */}
-      <button
-        onClick={() => setShowResult(false)}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        다시 계산하기
-      </button>
-
-      {/* 메인 결과 카드 */}
-      <div className="border border-gray-200 rounded-2xl bg-white p-6 text-center space-y-2">
-        <p className="text-sm text-gray-500">2024년 귀속 연말정산 예상 결과</p>
-        <p
-          className={`text-4xl font-bold ${
-            calculatedResult.isRefund ? "text-[#3182F6]" : "text-red-500"
-          }`}
+    <div>
+      {/* 상단 고정 영역 */}
+      <div className="p-5 pb-0 space-y-4">
+        {/* 다시 계산하기 */}
+        <button
+          onClick={() => {
+            setShowResult(false)
+            setActiveTooltipKey(null)
+            setTooltipAnchorEl(null)
+          }}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
-          {calculatedResult.isRefund ? "+" : "-"}
-          {calculatedResult.finalAmountAbs.toLocaleString("ko-KR")}원
-        </p>
-        <p
-          className={`text-base font-semibold ${
-            calculatedResult.isRefund ? "text-[#3182F6]" : "text-red-500"
-          }`}
-        >
-          {calculatedResult.isRefund ? "환급 예상" : "추가납부 예상"}
-        </p>
-        <p className="text-xs text-gray-400 pt-1">
-          실제 금액은 회사 처리 결과에 따라 다를 수 있어요
-        </p>
-      </div>
+          <ArrowLeft className="w-4 h-4" />
+          다시 계산하기
+        </button>
 
-      {/* 계산 흐름 요약 */}
-      <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
-          <p className="text-sm font-semibold text-gray-700">계산 과정</p>
+        {/* 메인 결과 카드 */}
+        <div className="border border-gray-200 rounded-2xl bg-white p-6 text-center space-y-2">
+          <p className="text-sm text-gray-500">2024년 귀속 연말정산 예상 결과</p>
+          <p
+            className={`text-4xl font-bold ${
+              calculatedResult.finalAmountAbs === 0
+                ? "text-gray-700"
+                : calculatedResult.isRefund
+                ? "text-[#3182F6]"
+                : "text-red-500"
+            }`}
+          >
+            {calculatedResult.finalAmountAbs === 0
+              ? ""
+              : calculatedResult.isRefund
+              ? "+"
+              : "-"}
+            {calculatedResult.finalAmountAbs.toLocaleString("ko-KR")}원
+          </p>
+          <p
+            className={`text-base font-semibold ${
+              calculatedResult.finalAmountAbs === 0
+                ? "text-gray-700"
+                : calculatedResult.isRefund
+                ? "text-[#3182F6]"
+                : "text-red-500"
+            }`}
+          >
+            {calculatedResult.finalAmountAbs === 0
+              ? "딱 맞게 냈어요"
+              : calculatedResult.isRefund
+              ? "환급 예상 💰"
+              : "추가납부 예상"}
+          </p>
+          <p className="text-xs text-gray-400 pt-1">
+            실제 금액은 회사 처리 결과에 따라 다를 수 있어요
+          </p>
         </div>
-        <table className="w-full">
-          <tbody className="divide-y divide-gray-50 text-sm">
-            <tr>
-              <td className="px-4 py-3 text-gray-600">총급여</td>
-              <td className="px-4 py-3 text-right font-medium">
-                {calculatedResult.flow.salary.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3 text-gray-600">- 소득공제</td>
-              <td className="px-4 py-3 text-right font-medium text-red-500">
-                -{calculatedResult.flow.totalIncomeDeduction.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr className="bg-blue-50/50">
-              <td className="px-4 py-3 text-gray-800 font-medium">= 과세표준</td>
-              <td className="px-4 py-3 text-right font-semibold">
-                {calculatedResult.flow.taxableIncome.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3 text-gray-600">산출세액</td>
-              <td className="px-4 py-3 text-right font-medium">
-                {calculatedResult.flow.calculatedTax.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3 text-gray-600">- 세액공제</td>
-              <td className="px-4 py-3 text-right font-medium text-red-500">
-                -{calculatedResult.flow.totalTaxCredit.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr className="bg-blue-50/50">
-              <td className="px-4 py-3 text-gray-800 font-medium">= 결정세액</td>
-              <td className="px-4 py-3 text-right font-semibold">
-                {calculatedResult.flow.finalTax.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3 text-gray-600">- 기납부세액</td>
-              <td className="px-4 py-3 text-right font-medium text-red-500">
-                -{calculatedResult.flow.prepaidTax.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-            <tr
-              className={`font-semibold ${
-                calculatedResult.isRefund ? "bg-blue-50" : "bg-red-50"
-              }`}
-            >
-              <td className="px-4 py-3 text-gray-900">최종</td>
-              <td
-                className={`px-4 py-3 text-right text-base ${
-                  calculatedResult.isRefund ? "text-[#3182F6]" : "text-red-500"
-                }`}
-              >
-                {calculatedResult.isRefund ? "+" : "-"}
-                {calculatedResult.finalAmountAbs.toLocaleString("ko-KR")}원
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
 
-      {/* Step 4에서 상세 내역 추가 예정 */}
-      {/* TODO: 소득공제 항목별, 세액공제 항목별 상세 탭 (Step 4) */}
+      {/* 4탭 헤더 */}
+      <div className="flex border-b border-gray-200 bg-white mt-4 overflow-x-auto">
+        {(
+          [
+            { key: "summary",         label: "요약" },
+            { key: "incomeDeduction", label: "소득공제" },
+            { key: "taxCredit",       label: "세액공제" },
+            { key: "prepaidTax",      label: "기납부세액" },
+          ] as const
+        ).map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => handleResultTabChange(key)}
+            className={`flex-1 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              resultTab === key
+                ? "text-[#3182F6] border-b-2 border-[#3182F6]"
+                : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-      <div className="h-6" />
+      {/* 탭 콘텐츠 */}
+      <div className="p-5 space-y-3">
+        {/* ── 탭 1: 요약 ── */}
+        {resultTab === "summary" && (
+          <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+            <InfoRow
+              label="총급여"
+              value={calculatedResult.flow.salary}
+              infoKey="sum.salary"
+              onInfoClick={handleInfoClick}
+            />
+            <InfoRow
+              label="- 소득공제"
+              value={calculatedResult.flow.totalIncomeDeduction}
+              minus
+              infoKey="sum.incDed"
+              onInfoClick={handleInfoClick}
+            />
+            <div className="border-t border-gray-200 pt-3">
+              <InfoRow
+                label="= 과세표준"
+                value={calculatedResult.flow.taxableIncome}
+                bold
+                infoKey="sum.taxBase"
+                onInfoClick={handleInfoClick}
+              />
+            </div>
+            <InfoRow
+              label="산출세액"
+              value={calculatedResult.flow.calculatedTax}
+              infoKey="sum.calcTax"
+              onInfoClick={handleInfoClick}
+            />
+            <InfoRow
+              label="- 세액공제"
+              value={calculatedResult.flow.totalTaxCredit}
+              minus
+              infoKey="sum.taxCredit"
+              onInfoClick={handleInfoClick}
+            />
+            <div className="border-t border-gray-200 pt-3">
+              <InfoRow
+                label="= 결정세액"
+                value={calculatedResult.flow.finalTax}
+                bold
+                infoKey="sum.finalTax"
+                onInfoClick={handleInfoClick}
+              />
+            </div>
+            <InfoRow
+              label="- 기납부세액"
+              value={calculatedResult.flow.prepaidTax}
+              minus
+              infoKey="sum.prepaid"
+              onInfoClick={handleInfoClick}
+            />
+            <div className="border-t border-gray-200 pt-3">
+              <InfoRow
+                label={calculatedResult.isRefund ? "= 환급액" : "= 추가납부액"}
+                value={calculatedResult.finalAmountAbs}
+                bold
+                highlight={
+                  calculatedResult.finalAmountAbs === 0
+                    ? undefined
+                    : calculatedResult.isRefund
+                    ? "blue"
+                    : "red"
+                }
+                infoKey="sum.final"
+                onInfoClick={handleInfoClick}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── 탭 2: 소득공제 ── */}
+        {resultTab === "incomeDeduction" && (() => {
+          const d = calculatedResult.incomeDeductions
+          const total =
+            d.earnedIncomeDeduction +
+            d.personalDeduction +
+            d.nationalPensionDeduction +
+            d.healthInsuranceDeduction +
+            d.housingSubscriptionDeduction +
+            d.leaseLoanDeduction +
+            d.mortgageInterestDeduction +
+            d.cardDeduction
+          const items: { label: string; value: number; key: string }[] = [
+            { label: "근로소득공제",      value: d.earnedIncomeDeduction,      key: "inc.earned" },
+            { label: "인적공제",          value: d.personalDeduction,          key: "inc.personal" },
+            { label: "국민연금",          value: d.nationalPensionDeduction,   key: "inc.pension" },
+            { label: "건강보험료",        value: d.healthInsuranceDeduction,   key: "inc.health" },
+            { label: "주택청약저축",      value: d.housingSubscriptionDeduction, key: "inc.housing" },
+            { label: "전세자금대출 원리금", value: d.leaseLoanDeduction,       key: "inc.lease" },
+            { label: "장기주택저당차입금", value: d.mortgageInterestDeduction,  key: "inc.mortgage" },
+            { label: "신용카드 등",       value: d.cardDeduction,              key: "inc.card" },
+          ]
+          return (
+            <div className="space-y-0">
+              <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+                {items.map((item) => (
+                  <InfoRow
+                    key={item.key}
+                    label={item.label}
+                    value={item.value}
+                    dimmed={item.value === 0}
+                    infoKey={item.key}
+                    onInfoClick={handleInfoClick}
+                  />
+                ))}
+                <div className="border-t border-gray-200 pt-3">
+                  <InfoRow
+                    label="소득공제 합계"
+                    value={total}
+                    bold
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ── 탭 3: 세액공제 ── */}
+        {resultTab === "taxCredit" && (() => {
+          const c = calculatedResult.taxCredits
+          const total =
+            c.earnedIncomeTaxCredit +
+            c.childTaxCredit +
+            c.pensionSavingsCredit +
+            c.insuranceTaxCredit +
+            c.medicalCredit +
+            c.educationCredit +
+            c.donationCredit +
+            c.rentCredit +
+            c.marriageCredit
+          const items: { label: string; value: number; key: string }[] = [
+            { label: "근로소득 세액공제", value: c.earnedIncomeTaxCredit, key: "tax.earned" },
+            { label: "자녀 세액공제",     value: c.childTaxCredit,        key: "tax.child" },
+            { label: "연금저축·IRP",      value: c.pensionSavingsCredit,  key: "tax.pension" },
+            { label: "보장성 보험료",     value: c.insuranceTaxCredit,    key: "tax.insurance" },
+            { label: "의료비",            value: c.medicalCredit,         key: "tax.medical" },
+            { label: "교육비",            value: c.educationCredit,       key: "tax.education" },
+            { label: "기부금",            value: c.donationCredit,        key: "tax.donation" },
+            { label: "월세",              value: c.rentCredit,            key: "tax.rent" },
+            { label: "혼인",              value: c.marriageCredit,        key: "tax.marriage" },
+          ]
+          return (
+            <div className="space-y-0">
+              <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+                {items.map((item) => (
+                  <InfoRow
+                    key={item.key}
+                    label={item.label}
+                    value={item.value}
+                    dimmed={item.value === 0}
+                    infoKey={item.key}
+                    onInfoClick={handleInfoClick}
+                  />
+                ))}
+                <div className="border-t border-gray-200 pt-3">
+                  <InfoRow
+                    label="세액공제 합계"
+                    value={total}
+                    bold
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ── 탭 4: 기납부세액 ── */}
+        {resultTab === "prepaidTax" && (
+          <div className="space-y-3">
+            <div className="bg-gray-50 rounded-2xl p-4">
+              <InfoRow
+                label="근로소득 원천징수세액"
+                value={calculatedResult.flow.prepaidTax}
+                infoKey="pre.withholding"
+                onInfoClick={handleInfoClick}
+                tag={
+                  isWithholdingEstimated ? (
+                    <span className="text-xs text-amber-600 font-medium shrink-0">(추정)</span>
+                  ) : undefined
+                }
+              />
+            </div>
+
+            {isWithholdingEstimated && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                  <p className="text-sm text-amber-800 leading-relaxed">
+                    원천징수세액을 입력하지 않아 연봉 기준으로 자동 추정했어요.
+                    정확한 금액은 원천징수영수증에서 확인하세요.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="h-6" />
+      </div>
     </div>
   ) : (
     // ── 입력 폼 ────────────────────────────────────────────────
@@ -1278,6 +1665,19 @@ export default function YearEndCalculator() {
           </div>
         )}
       </div>
+
+      {/* 툴팁 카드 */}
+      {activeTooltipKey && tooltipAnchorEl && tooltipData[activeTooltipKey] && (
+        <FloatingTooltipCard
+          title={tooltipData[activeTooltipKey].title}
+          body={tooltipData[activeTooltipKey].body}
+          anchorEl={tooltipAnchorEl}
+          onClose={() => {
+            setActiveTooltipKey(null)
+            setTooltipAnchorEl(null)
+          }}
+        />
+      )}
     </div>
   )
 }
