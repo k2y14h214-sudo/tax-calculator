@@ -815,7 +815,7 @@ export default function TaxCalculator() {
 
   const infoSection = (
     <div className="p-5 pt-12 space-y-0">
-      <h1 className="text-2xl font-bold text-gray-900">종합소득세 설명</h1>
+      <h1 className="text-2xl font-bold text-gray-900">종합소득세가 뭔데??!!! 💸</h1>
 
       {/* 1. 종합소득세란? */}
       <section className="py-8 border-b border-gray-100">
@@ -823,7 +823,7 @@ export default function TaxCalculator() {
           <span className="text-2xl font-bold text-[#3182F6]">1</span>
           <h2 className="text-lg font-semibold text-gray-900">종합소득세란?</h2>
         </div>
-        <p className="text-sm font-semibold text-gray-900 mb-2">1년 동안 번 모든 소득을 합쳐서 내는 세금이에요.</p>
+        <p className="text-lg font-semibold text-gray-900 mb-2">1년동안 번 <strong>&apos;모든&apos;</strong> 소득을 합쳐서 내는 세금.</p>
         <p className="text-sm text-gray-500 leading-relaxed">
           직장 월급 외에 부업 수입이 있다면, 5월에 한 번 더 정산해야 해요.
         </p>
@@ -894,36 +894,24 @@ export default function TaxCalculator() {
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
               <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">근로소득 + 부업소득</td>
-                <td className="px-3 py-2">두 소득을 합산해요</td>
+                <td className="px-3 py-2 font-medium text-gray-900">종합소득금액 계산</td>
+                <td className="px-3 py-2">근로소득 + 부업소득</td>
               </tr>
               <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">소득공제</td>
-                <td className="px-3 py-2">인적공제, 연금, 카드 사용액 등을 빼요</td>
+                <td className="px-3 py-2 font-medium text-gray-900">소득 공제하기</td>
+                <td className="px-3 py-2">인적공제, 연금, 카드 사용액 등을 빼요. 이 결과가 과세표준이에요.</td>
               </tr>
               <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">과세표준</td>
-                <td className="px-3 py-2">세율을 적용할 기준 금액이에요</td>
+                <td className="px-3 py-2 font-medium text-gray-900">세율 적용하기</td>
+                <td className="px-3 py-2">과세표준에 세율을 곱한 게 기본 세금이에요. 과세표준 구간에 따라 세율이 달라져요.</td>
               </tr>
               <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">세율 적용</td>
-                <td className="px-3 py-2">과세표준 구간에 따라 6~45% 적용</td>
+                <td className="px-3 py-2 font-medium text-gray-900">세액 공제하기</td>
+                <td className="px-3 py-2">기본 세금에서 자녀, 월세, 의료비 등을 직접 빼요. 이까지 계산한 결과가 결정세액(내 상황에서 최종적으로 내야 할 세금)이에요.</td>
               </tr>
               <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">산출세액</td>
-                <td className="px-3 py-2">세율을 곱해 나온 기본 세금이에요</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">세액공제</td>
-                <td className="px-3 py-2">자녀, 월세, 의료비 등 세금에서 직접 빼요</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">결정세액</td>
-                <td className="px-3 py-2">최종적으로 내야 할 세금이에요</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">기납부세액 차감</td>
-                <td className="px-3 py-2">연말정산분 + 부업 원천징수액을 빼요</td>
+                <td className="px-3 py-2 font-medium text-gray-900">기납부세액과 비교하기</td>
+                <td className="px-3 py-2">결정세액과 기납부세액을 비교해서 환급받거나 추가납부를 결정해요. 기납부세액은 이미 낸 세금(연말정산분 + 부업 원천징수액)이에요.</td>
               </tr>
               <tr>
                 <td className="px-3 py-2 font-medium text-gray-900">환급 or 추가납부</td>
@@ -932,6 +920,39 @@ export default function TaxCalculator() {
             </tbody>
           </table>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowTaxRateTable((v) => !v)}
+          className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm font-semibold text-gray-900"
+          aria-expanded={showTaxRateTable}
+        >
+          <span>적용 세율 구간 보기</span>
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showTaxRateTable ? "rotate-180" : ""}`} />
+        </button>
+
+        {showTaxRateTable && (
+          <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mt-2 max-w-xs shadow-md">
+            <table className="w-full">
+              <thead className="bg-[#e3eefc]">
+                <tr>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">과세표준</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">세율</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                <tr><td className="px-3 py-2">1,400만원 이하</td><td className="px-3 py-2">6%</td></tr>
+                <tr><td className="px-3 py-2">1,400만~5,000만원</td><td className="px-3 py-2">15%</td></tr>
+                <tr><td className="px-3 py-2">5,000만~8,800만원</td><td className="px-3 py-2">24%</td></tr>
+                <tr><td className="px-3 py-2">8,800만~1.5억원</td><td className="px-3 py-2">35%</td></tr>
+                <tr><td className="px-3 py-2">1.5억~3억원</td><td className="px-3 py-2">38%</td></tr>
+                <tr><td className="px-3 py-2">3억~5억원</td><td className="px-3 py-2">40%</td></tr>
+                <tr><td className="px-3 py-2">5억원 초과</td><td className="px-3 py-2">45%</td></tr>
+              </tbody>
+            </table>
+            <div className="px-3 py-2 bg-gray-50 text-xs text-gray-500">* 2024년 귀속 기준 (소득세법 제55조)</div>
+          </div>
+        )}
       </section>
 
       {/* 4. 나는 신고해야 할까요? */}
@@ -1013,10 +1034,9 @@ export default function TaxCalculator() {
         </div>
 
         <div className="bg-gray-50 rounded-xl p-4 mb-4">
-          <p className="text-sm font-semibold text-gray-900 mb-1">
-            부업 수입과 월급을 합쳐서 세율을 계산하지 않고 따로 계산하는 것
+          <p className="text-lg font-semibold text-gray-900">
+            부업 수입과 월급을 합쳐서 세율을 계산하지 않고 따로 계산하는 것. 합산과 분리과세 중 어떤 게 유리할지 본인이 선택!!
           </p>
-          <p className="text-sm text-gray-600 leading-relaxed">부업소득 세율은 금액에 상관없이 8.8%로 고정</p>
         </div>
 
         <p className="text-sm text-gray-700 leading-relaxed mb-4">
@@ -1124,59 +1144,6 @@ export default function TaxCalculator() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowTaxRateTable((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
-          aria-expanded={showTaxRateTable}
-        >
-          <span className="text-sm font-semibold text-gray-900">적용 세율 구간 보기</span>
-          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showTaxRateTable ? "rotate-180" : ""}`} />
-        </button>
-
-        {showTaxRateTable && (
-          <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mt-3">
-            <table className="w-full">
-              <thead className="bg-[#e3eefc]">
-                <tr>
-                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[55%]">과세표준</th>
-                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">세율</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-                <tr>
-                  <td className="px-3 py-2">1,400만원 이하</td>
-                  <td className="px-3 py-2">6%</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2">1,400만~5,000만원</td>
-                  <td className="px-3 py-2">15%</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2">5,000만~8,800만원</td>
-                  <td className="px-3 py-2">24%</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2">8,800만~1.5억원</td>
-                  <td className="px-3 py-2">35%</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2">1.5억~3억원</td>
-                  <td className="px-3 py-2">38%</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2">3억~5억원</td>
-                  <td className="px-3 py-2">40%</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2">5억원 초과</td>
-                  <td className="px-3 py-2">45%</td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="px-3 py-2 bg-gray-50 text-xs text-gray-500">* 2024년 귀속 기준 (소득세법 제55조)</div>
-          </div>
-        )}
       </section>
 
       {/* 4-2. 부업소득도 세금을 떼고 받은 금액인가요? */}
@@ -1235,7 +1202,7 @@ export default function TaxCalculator() {
 
         <div className="bg-gray-50 rounded-xl p-4 mb-5">
           <p className="text-sm text-gray-700 leading-relaxed font-medium">
-            홈택스에 접속하면 대부분 자동으로 채워져 있어요. 확인하고 제출만 하면 되는 경우가 많아요.
+            홈택스에 접속하면 자동으로 해줌! 확인하고 제출만 하면 되는 경우가 대부분!
           </p>
         </div>
 
@@ -1284,7 +1251,7 @@ export default function TaxCalculator() {
         </div>
 
         <p className="text-sm text-gray-600 leading-relaxed mb-4">
-          홈택스에서 대부분 자동으로 불러와줘요. 로그인 후 조회해보고 빠진 항목만 추가하면 돼요.
+          홈택스에서 대부분 자동으로 불러와줌! 로그인 후 조회해보고 빠진 항목만 준비해도 늦지 않다!
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -1325,11 +1292,6 @@ export default function TaxCalculator() {
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-4">
-          <p className="text-sm text-gray-700 leading-relaxed">
-            공동인증서 또는 카카오·네이버 간편인증으로 로그인할 수 있어요. 먼저 접속해보고 빠진 항목만 준비해도 늦지 않아요.
-          </p>
-        </div>
       </section>
 
       {/* 7. 단어들이 너무 어려운데요 (용어 사전) */}
