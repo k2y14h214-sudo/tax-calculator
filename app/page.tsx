@@ -815,7 +815,9 @@ export default function TaxCalculator() {
 
   const infoSection = (
     <div className="p-5 pt-12 space-y-0">
-      <h1 className="text-2xl font-bold text-gray-900">종합소득세가 뭔데??!!! 💸</h1>
+      <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-2">
+        <h1 className="text-[1.65rem] font-bold text-gray-900">종합소득세가 뭔데??!!! 💸</h1>
+      </div>
 
       {/* 1. 종합소득세란? */}
       <section className="py-8 border-b border-gray-100">
@@ -825,7 +827,8 @@ export default function TaxCalculator() {
         </div>
         <p className="text-lg font-semibold text-gray-900 mb-2">1년동안 번 <strong>&apos;모든&apos;</strong> 소득을 합쳐서 내는 세금.</p>
         <p className="text-sm text-gray-500 leading-relaxed">
-          직장 월급 외에 부업 수입이 있다면, 5월에 한 번 더 정산해야 해요.
+          직장 월급 외에 부업 수입이 있다면, 5월에 한 번 더 정산해야 해요.<br />
+          부업 수입이 없는 직장인이라면 할 필요 없어요.
         </p>
       </section>
 
@@ -1039,109 +1042,100 @@ export default function TaxCalculator() {
           </p>
         </div>
 
-        <p className="text-sm text-gray-700 leading-relaxed mb-4">
-          <span className="inline-flex items-center gap-1">
-            &apos;과세표준&apos;
-            <button
-              type="button"
-              onClick={(e) => handleInfoClick("summary.taxableIncome", e.currentTarget)}
-              className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center hover:bg-blue-100 active:bg-blue-200"
-              aria-label="과세표준 설명"
-            >
-              <Info className="w-3 h-3 text-[#3182F6]" />
-            </button>
-          </span>
-          이 1,400만원 이하(세율 6%)면 합산 신고 유리, 1,400만원 초과(세율 15% 이상)면 분리과세 유리해요.
-        </p>
-
-        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mb-6">
-          <div className="bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900">
-            예시 1 — 연봉 5,000만원 + 부업 수입 1,000만원, 소득공제 1,500만원
-          </div>
-          <table className="w-full">
-            <thead className="bg-[#e3eefc]">
-              <tr>
-                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
-                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">합산 신고</th>
-                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">분리과세</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">과세표준</td>
-                <td className="px-3 py-2">4,500만원 (5,000+1,000-1,500)</td>
-                <td className="px-3 py-2">3,500만원 (월급만 기준)</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">연봉 세율</td>
-                <td className="px-3 py-2">15%</td>
-                <td className="px-3 py-2">15%</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">부업 세율</td>
-                <td className="px-3 py-2">15% (합산)</td>
-                <td className="px-3 py-2">8.8% (고정)</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">부업 세금</td>
-                <td className="px-3 py-2">150만원</td>
-                <td className="px-3 py-2">88만원</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">결론</td>
-                <td className="px-3 py-2 text-gray-500/70">-</td>
-                <td className="px-3 py-2 bg-emerald-50 text-emerald-700 font-semibold">분리과세 유리 ✓</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mb-4">
-          <div className="bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900">
-            예시 2 — 연봉 1,500만원 + 부업 수입 200만원, 소득공제 1,200만원
-          </div>
-          <table className="w-full">
-            <thead className="bg-[#e3eefc]">
-              <tr>
-                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
-                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">합산 신고</th>
-                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">분리과세</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">과세표준</td>
-                <td className="px-3 py-2">500만원 (1,500+200-1,200)</td>
-                <td className="px-3 py-2">300만원 (월급만 기준)</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">연봉 세율</td>
-                <td className="px-3 py-2">6%</td>
-                <td className="px-3 py-2">6%</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">부업 세율</td>
-                <td className="px-3 py-2">6% (합산)</td>
-                <td className="px-3 py-2">8.8% (고정)</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">부업 세금</td>
-                <td className="px-3 py-2">12만원</td>
-                <td className="px-3 py-2">17.6만원</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium text-gray-900">결론</td>
-                <td className="px-3 py-2 bg-emerald-50 text-emerald-700 font-semibold">합산 신고 유리 ✓</td>
-                <td className="px-3 py-2 text-gray-500/70">-</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="bg-amber-50 rounded-xl p-4 mb-4">
-          <p className="text-sm text-amber-700 leading-relaxed">
-            예시는 이해를 돕기 위해 단순 계산한 것이에요. 실제로는 부업 유형에 따라 수입 전체가 아닌 일부만 과세표준에 합산돼요.
+        <div className="border border-gray-200 rounded-2xl p-5 bg-white max-w-[85%] mx-auto">
+          <p className="text-base font-semibold text-gray-900 mb-4">
+            🤔 뭐가 유리한지 어떻게 알아?!
           </p>
+
+          <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mb-4 max-w-[88%] mx-auto">
+            <div className="bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900">
+              예시 1 — 연봉 5,000만원 + 부업 수입 1,000만원, 소득공제 1,500만원
+            </div>
+            <table className="w-full">
+              <thead className="bg-[#e3eefc]">
+                <tr>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">합산 신고</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">분리과세</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">과세표준</td>
+                  <td className="px-3 py-2">4,500만원 (5,000+1,000-1,500)</td>
+                  <td className="px-3 py-2">3,500만원 (월급만 기준)</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">연봉 세율</td>
+                  <td className="px-3 py-2">15%</td>
+                  <td className="px-3 py-2">15%</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">부업 세율</td>
+                  <td className="px-3 py-2">15% (합산)</td>
+                  <td className="px-3 py-2">8.8% (고정)</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">부업 세금</td>
+                  <td className="px-3 py-2">150만원</td>
+                  <td className="px-3 py-2">88만원</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">결론</td>
+                  <td className="px-3 py-2 text-gray-500/70">-</td>
+                  <td className="px-3 py-2 bg-emerald-50 text-emerald-700 font-semibold">분리과세 유리 ✓</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="border border-gray-200 rounded-xl overflow-hidden bg-white mb-4 max-w-[88%] mx-auto">
+            <div className="bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900">
+              예시 2 — 연봉 1,500만원 + 부업 수입 200만원, 소득공제 1,200만원
+            </div>
+            <table className="w-full">
+              <thead className="bg-[#e3eefc]">
+                <tr>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">항목</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">합산 신고</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">분리과세</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">과세표준</td>
+                  <td className="px-3 py-2">500만원 (1,500+200-1,200)</td>
+                  <td className="px-3 py-2">300만원 (월급만 기준)</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">연봉 세율</td>
+                  <td className="px-3 py-2">6%</td>
+                  <td className="px-3 py-2">6%</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">부업 세율</td>
+                  <td className="px-3 py-2">6% (합산)</td>
+                  <td className="px-3 py-2">8.8% (고정)</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">부업 세금</td>
+                  <td className="px-3 py-2">12만원</td>
+                  <td className="px-3 py-2">17.6만원</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-medium text-gray-900">결론</td>
+                  <td className="px-3 py-2 bg-emerald-50 text-emerald-700 font-semibold">합산 신고 유리 ✓</td>
+                  <td className="px-3 py-2 text-gray-500/70">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="bg-amber-50 rounded-xl p-4 max-w-[80%] mx-auto whitespace-normal break-words">
+            <p className="text-sm text-amber-700 leading-relaxed">
+              예시는 이해를 돕기 위해 단순 계산한 것이에요. 실제로는 부업 유형에 따라 수입 전체가 아닌 일부만 과세표준에 합산돼요.
+            </p>
+          </div>
         </div>
 
       </section>

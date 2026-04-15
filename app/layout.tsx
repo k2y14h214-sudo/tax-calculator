@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
@@ -6,10 +6,21 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export const metadata: Metadata = {
-  title: '종합소득세 계산기',
-  description: '직장인 부업 소득 종합소득세 계산기',
+  title: '투잡러를 위한 종합소득세 계산기',
+  description: '부업 수입이 있는 직장인을 위한 종합소득세 계산기. 합산신고 vs 분리과세 비교, 환급/납부액 계산까지.',
+  keywords: '종합소득세 계산기, 투잡 세금, 부업 세금, 분리과세, 합산신고, 종소세',
   generator: 'v0.app',
+  openGraph: {
+    title: '투잡러를 위한 종합소득세 계산기',
+    description: '부업 수입이 있는 직장인을 위한 종합소득세 계산기. 합산신고 vs 분리과세 비교, 환급/납부액 계산까지.',
+    type: 'website',
+  },
   icons: {
     icon: [
       {
