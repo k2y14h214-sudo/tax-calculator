@@ -400,6 +400,7 @@ export default function YearEndCalculator() {
   const [activeTooltipKey, setActiveTooltipKey] = useState<string | null>(null)
   const [tooltipAnchorEl, setTooltipAnchorEl] = useState<HTMLElement | null>(null)
   const [isWithholdingEstimated, setIsWithholdingEstimated] = useState(false)
+  const [showTaxRateTable, setShowTaxRateTable] = useState(false)
 
   // ── 완료 체크 ────────────────────────────────────────────────
   const isIncomeComplete = !!salary
@@ -1522,70 +1523,306 @@ export default function YearEndCalculator() {
     </div>
   )
 
-  // ── 정보 섹션 (기존 유지) ────────────────────────────────────
+  // ── 정보 섹션 ────────────────────────────────────────────────
   const infoSection = (
     <div className="p-5 pt-12 space-y-0">
       <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-2">
         <h1 className="text-[1.65rem] font-bold text-gray-900">연말정산이 뭔데??!!! 💰</h1>
       </div>
 
+      {/* 1. 연말정산이란? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">1</span>
           <h2 className="text-lg font-semibold text-gray-900">연말정산이란?</h2>
         </div>
+        <p className="text-lg font-bold text-gray-900 mb-2">회사가 1년치 세금을 대신 정산해주는 것.</p>
+        <p className="text-sm text-gray-500 leading-relaxed mb-4">
+          매달 월급에서 세금을 미리 뗐는데, 연말에 실제 세금과 비교해서<br />
+          더 냈으면 돌려주고, 덜 냈으면 더 내는 과정이에요.
+        </p>
         <div className="bg-gray-50 rounded-2xl p-4">
-          <p className="text-sm text-gray-500">준비 중입니다.</p>
+          <p className="text-sm text-gray-700 leading-relaxed">
+            매년 1~2월, 회사가 대신 처리해줘요.<br />
+            근로소득(월급)만 대상이에요.
+          </p>
         </div>
       </section>
 
+      {/* 2. 종합소득세랑 다른 건가요? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">2</span>
           <h2 className="text-lg font-semibold text-gray-900">종합소득세랑 다른 건가요?</h2>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <p className="text-sm text-gray-500">준비 중입니다.</p>
+
+        <div className="border border-gray-200 rounded-xl overflow-x-auto bg-white mb-3">
+          <table className="w-full">
+            <thead className="bg-[#e3eefc]">
+              <tr>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[28%]">항목</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">연말정산</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">종합소득세 신고</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">언제</td>
+                <td className="px-3 py-2">매년 1~2월</td>
+                <td className="px-3 py-2">매년 5월</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">누가</td>
+                <td className="px-3 py-2">회사가 대신 처리</td>
+                <td className="px-3 py-2">내가 직접 신고</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">대상 소득</td>
+                <td className="px-3 py-2">월급만</td>
+                <td className="px-3 py-2">모든 소득 합산</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">부업 수입</td>
+                <td className="px-3 py-2">포함 안 됨</td>
+                <td className="px-3 py-2">포함됨</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
+        <p className="text-sm text-gray-500 leading-relaxed mb-3">
+          부업·프리랜서 수입이 있다면 연말정산으로 끝나지 않아요.<br />
+          5월에 종합소득세 신고를 따로 해야 해요.
+        </p>
+        <Link
+          href="/"
+          className="inline-block bg-gray-100 rounded-xl px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+        >
+          → 종합소득세 계산기 보러가기
+        </Link>
       </section>
 
+      {/* 3. 세금이 어떻게 계산되나요? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">3</span>
           <h2 className="text-lg font-semibold text-gray-900">세금이 어떻게 계산되나요?</h2>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <p className="text-sm text-gray-500">준비 중입니다.</p>
+
+        <div className="bg-gray-50 rounded-xl p-3 mb-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/decision-tax-formula.svg" className="w-1/2 mx-auto" alt="세금 계산 공식" />
         </div>
+
+        <div className="border border-gray-200 rounded-xl overflow-x-auto bg-white mb-4">
+          <table className="w-full">
+            <thead className="bg-[#e3eefc]">
+              <tr>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[34%]">단계</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">설명</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">근로소득금액 계산</td>
+                <td className="px-3 py-2">연봉에서 근로소득공제를 자동으로 빼요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">소득 공제하기</td>
+                <td className="px-3 py-2">인적공제, 연금, 카드 사용액 등을 빼요. 이 결과가 과세표준이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">세율 적용하기</td>
+                <td className="px-3 py-2">과세표준에 세율을 곱한 게 기본 세금이에요. 구간에 따라 세율이 달라져요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">세액 공제하기</td>
+                <td className="px-3 py-2">기본 세금에서 자녀, 월세, 의료비 등을 직접 빼요. 이게 결정세액이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">기납부세액과 비교</td>
+                <td className="px-3 py-2">결정세액과 이미 낸 세금(원천징수)을 비교해요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">환급 or 추가납부</td>
+                <td className="px-3 py-2">차액만큼 돌려받거나 추가로 내요</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowTaxRateTable((v) => !v)}
+          className="mt-2 flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm font-semibold text-gray-900"
+          aria-expanded={showTaxRateTable}
+        >
+          <span>적용 세율 구간 보기</span>
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showTaxRateTable ? "rotate-180" : ""}`} />
+        </button>
+
+        {showTaxRateTable && (
+          <div className="border border-gray-200 rounded-xl overflow-x-auto bg-white mt-2 max-w-xs shadow-md">
+            <table className="w-full">
+              <thead className="bg-[#e3eefc]">
+                <tr>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">과세표준</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">세율</th>
+                  <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">누진공제</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                <tr><td className="px-3 py-2">1,400만원 이하</td><td className="px-3 py-2">6%</td><td className="px-3 py-2">-</td></tr>
+                <tr><td className="px-3 py-2">1,400만~5,000만원</td><td className="px-3 py-2">15%</td><td className="px-3 py-2">126만원</td></tr>
+                <tr><td className="px-3 py-2">5,000만~8,800만원</td><td className="px-3 py-2">24%</td><td className="px-3 py-2">576만원</td></tr>
+                <tr><td className="px-3 py-2">8,800만~1.5억원</td><td className="px-3 py-2">35%</td><td className="px-3 py-2">1,544만원</td></tr>
+                <tr><td className="px-3 py-2">1.5억~3억원</td><td className="px-3 py-2">38%</td><td className="px-3 py-2">1,994만원</td></tr>
+                <tr><td className="px-3 py-2">3억~5억원</td><td className="px-3 py-2">40%</td><td className="px-3 py-2">2,594만원</td></tr>
+                <tr><td className="px-3 py-2">5억~10억원</td><td className="px-3 py-2">42%</td><td className="px-3 py-2">3,594만원</td></tr>
+                <tr><td className="px-3 py-2">10억원 초과</td><td className="px-3 py-2">45%</td><td className="px-3 py-2">6,594만원</td></tr>
+              </tbody>
+            </table>
+            <div className="px-3 py-2 bg-gray-50 text-xs text-gray-500">* 2024년 귀속 기준 (소득세법 제55조)</div>
+          </div>
+        )}
       </section>
 
+      {/* 4. 13월의 월급, 항상 받을 수 있나요? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">4</span>
           <h2 className="text-lg font-semibold text-gray-900">13월의 월급, 항상 받을 수 있나요?</h2>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <p className="text-sm text-gray-500">준비 중입니다.</p>
+        <p className="text-lg font-bold text-gray-900 mb-2">아니에요. 환급이 보장된 건 아니에요.</p>
+        <p className="text-sm text-gray-500 leading-relaxed mb-4">
+          연말정산 결과는 이미 낸 세금(원천징수)과 실제 세금(결정세액)의<br />
+          차이예요. 공제 항목이 많으면 환급, 적으면 추가납부가 돼요.
+        </p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-blue-50 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-blue-700 mb-2">💰 환급 받는 경우</p>
+            <p className="text-sm text-blue-700 leading-relaxed">실제 세금 &lt; 이미 낸 세금<br />→ 차액 돌려받음</p>
+          </div>
+          <div className="bg-red-50 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-red-600 mb-2">😬 추가납부 하는 경우</p>
+            <p className="text-sm text-red-600 leading-relaxed">실제 세금 &gt; 이미 낸 세금<br />→ 차액 더 냄</p>
+          </div>
+        </div>
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-amber-700 text-sm leading-relaxed">
+          공제 항목을 꼼꼼히 챙길수록 환급 가능성이 높아져요.<br />
+          이 계산기로 미리 확인해보세요!
         </div>
       </section>
 
+      {/* 5. 뭐가 필요한가요? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">5</span>
           <h2 className="text-lg font-semibold text-gray-900">뭐가 필요한가요?</h2>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <p className="text-sm text-gray-500">준비 중입니다.</p>
+        <p className="text-sm text-gray-600 leading-relaxed mb-4">
+          홈택스에서 대부분 자동으로 불러와줘요!<br />
+          로그인 후 조회해보고 빠진 항목만 준비하면 돼요.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="border border-gray-200 rounded-xl bg-white p-3">
+            <p className="font-semibold text-gray-900 mb-2 text-sm">홈택스에서 자동으로</p>
+            <ul className="text-sm text-gray-700 space-y-2">
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>근로소득 원천징수영수증</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>건강보험·국민연금 납부내역</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>신용카드·현금영수증 사용액</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>기부금 내역</span>
+              </li>
+            </ul>
+          </div>
+          <div className="border border-gray-200 rounded-xl bg-white p-3">
+            <p className="font-semibold text-gray-900 mb-2 text-sm">직접 챙겨야 할 수도 있는 것</p>
+            <ul className="text-sm text-gray-700 space-y-2">
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>월세 계약서 + 이체 내역</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>전세자금대출 상환 확인서</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>의료비 영수증 (일부)</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                <span>교육비 납입 영수증 (일부)</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
+      {/* 6. 단어들이 너무 어려운데요 (용어 사전) */}
       <section className="py-8">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">6</span>
           <h2 className="text-lg font-semibold text-gray-900">단어들이 너무 어려운데요 (용어 사전)</h2>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-4">
-          <p className="text-sm text-gray-500">준비 중입니다.</p>
+        <div className="border border-gray-200 rounded-xl overflow-x-auto bg-white">
+          <table className="w-full">
+            <thead className="bg-[#e3eefc]">
+              <tr>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2 w-[28%]">용어</th>
+                <th className="text-left text-sm font-medium text-gray-900 px-3 py-2">설명</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">근로소득공제</td>
+                <td className="px-3 py-2">직장인이라면 자동으로 받는 공제. 연봉 구간에 따라 자동 계산돼요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">과세표준</td>
+                <td className="px-3 py-2">실제로 세금을 매기는 기준 금액. 소득에서 각종 공제를 뺀 값이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">산출세액</td>
+                <td className="px-3 py-2">과세표준에 세율을 곱한 기본 세금이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">결정세액</td>
+                <td className="px-3 py-2">최종적으로 내야 할 세금. 산출세액에서 세액공제를 뺀 금액이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">원천징수</td>
+                <td className="px-3 py-2">회사가 월급에서 세금을 미리 떼는 것이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">기납부세액</td>
+                <td className="px-3 py-2">이미 낸 세금 전부. 원천징수로 뗀 금액이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">소득공제</td>
+                <td className="px-3 py-2">소득에서 미리 빼주는 금액. 많을수록 과세표준이 낮아져요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">세액공제</td>
+                <td className="px-3 py-2">계산된 세금에서 직접 빼주는 금액이에요</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-gray-900">연말정산 환급</td>
+                <td className="px-3 py-2">결정세액보다 기납부세액이 많을 때 돌려받는 금액이에요</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </div>
