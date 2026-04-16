@@ -338,7 +338,7 @@ export function calculateYearEndTax(input: YearEndTaxInput): YearEndTaxResult {
       salary,
       earnedIncomeDeduction,
       totalIncome,
-      totalIncomeDeduction,
+      totalIncomeDeduction: Math.round(earnedIncomeDeduction + totalIncomeDeduction),
       taxableIncome,
       calculatedTax,
       totalTaxCredit,
