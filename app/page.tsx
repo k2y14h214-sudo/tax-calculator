@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, Check, Minus, Plus, AlertTriangle, ArrowRight, ArrowLeft, Info, X, ExternalLink } from "lucide-react"
+import Link from "next/link"
 import AppHeader from "./components/AppHeader"
 
 // 숫자 포맷 함수 (천단위 콤마)
@@ -189,35 +190,35 @@ export default function TaxCalculator() {
       // 요약 탭
       "summary.totalIncome": {
         title: "종합소득금액",
-        body: "근로소득과 부업소득을 합친 금액이에요. 여기서 각종 공제를 빼서 세금을 계산해요.",
+        body: "근로소득과 부업소득을 합친 금액이에요.",
       },
       "summary.incomeDeduction": {
         title: "소득공제",
-        body: "소득에서 미리 빼주는 금액이에요. 많이 받을수록 세금 계산 기준이 낮아져요.",
+        body: "소득에서 미리 빼주는 금액이에요. 많을수록 세금 기준이 낮아져요.",
       },
       "summary.taxableIncome": {
         title: "과세표준",
-        body: "종합소득금액에서 소득공제를 뺀 금액이에요. 실제로 세금을 매기는 기준이 돼요.",
+        body: "실제로 세금을 매기는 기준 금액이에요.",
       },
       "summary.calculatedTax": {
         title: "산출세액",
-        body: "과세표준에 세율을 곱해서 나온 기본 세금이에요. 과세표준이 낮으면 세율도 낮아져요.",
+        body: "과세표준에 세율을 곱한 기본 세금이에요.",
       },
       "summary.taxCredit": {
         title: "세액공제",
-        body: "계산된 기본 세금(산출세액)에서 직접 빼주는 금액이에요.",
+        body: "기본 세금에서 직접 빼주는 금액이에요.",
       },
       "summary.finalTax": {
         title: "결정세액",
-        body: "산출세액에서 세액공제를 뺀 최종 세금이에요.",
+        body: "최종적으로 내야 할 세금이에요.",
       },
       "summary.prepaidTax": {
         title: "기납부세액",
-        body: "이미 낸 세금이에요. 회사에서 매달 원천징수한 금액과 부업에서 뗀 3.3%가 포함돼요.",
+        body: "이미 낸 세금이에요. 원천징수 + 부업 원천징수 합계예요.",
       },
       "summary.finalAmount": {
-        title: "최종 납부/환급액",
-        body: "실제로 내야 할 세금(결정세액)에서 이미 낸 세금(기납부세액)을 뺀 금액이에요. 플러스면 추가로 내야 하고, 마이너스면 돌려받아요.",
+        title: "최종납부/환급",
+        body: "결정세액과 기납부세액의 차액이에요.",
       },
 
       // 소득공제 탭
@@ -239,15 +240,15 @@ export default function TaxCalculator() {
       },
       "incomeDeduction.cardDeduction": {
         title: "신용카드 공제",
-        body: "카드·현금 사용금액이 연봉의 25%를 넘으면 초과분의 일부를 빼줘요. 신용카드는 15%, 체크카드·현금은 30% 공제율이에요.",
+        body: "카드·현금 사용금액이 연봉의 25%를 넘으면 초과분의 일부를 빼줘요. 신용카드는 15%, 체크카드·현금은 30% 공제율이에요.\n최대 300만원까지 공제 가능해요.",
       },
       "incomeDeduction.housingSubscriptionDeduction": {
         title: "주택청약저축 공제",
-        body: "무주택자가 주택청약저축에 넣은 금액의 40%를 빼줘요. 연 300만원 한도예요.",
+        body: "무주택자가 주택청약저축에 넣은 금액의 40%를 빼줘요. 연 300만원 한도예요.\n최대 120만원까지 공제 가능해요.",
       },
       "incomeDeduction.mortgageInterestDeduction": {
         title: "장기주택저당차입금 이자상환액",
-        body: "주택담보대출 이자로 낸 금액을 소득에서 빼줘요. 연 최대 2,000만원까지 가능해요.",
+        body: "주택담보대출 이자로 낸 금액을 소득에서 빼줘요. 연 최대 2,000만원까지 가능해요.\n최대 800만~2,000만원까지 공제 가능해요.",
       },
       "incomeDeduction.yellowUmbrellaDeduction": {
         title: "노란우산공제",
@@ -265,31 +266,31 @@ export default function TaxCalculator() {
       },
       "taxCredit.pensionSavingsCredit": {
         title: "연금저축·IRP 세액공제",
-        body: "연금저축과 IRP에 넣은 금액의 12~15%를 세금에서 빼줘요. 합산 연 900만원 한도예요.",
+        body: "연금저축과 IRP에 넣은 금액의 12~15%를 세금에서 빼줘요. 합산 연 900만원 한도예요.\n최대 148만5천원까지 공제 가능해요. (납입액 900만×15% 기준)",
       },
       "taxCredit.insuranceTaxCredit": {
         title: "보장성 보험료 세액공제",
-        body: "실손·암보험 등 보장성 보험료의 12%를 세금에서 빼줘요. 연 100만원 한도예요.",
+        body: "실손·암보험 등 보장성 보험료의 12%를 세금에서 빼줘요. 연 100만원 한도예요.\n최대 12만원까지 공제 가능해요.",
       },
       "taxCredit.medicalCredit": {
         title: "의료비 세액공제",
-        body: "병원비가 연봉의 3%를 넘으면 초과분의 15%를 세금에서 빼줘요.",
+        body: "병원비가 연봉의 3%를 넘으면 초과분의 15%를 세금에서 빼줘요.\n본인·65세이상·장애인은 한도 없이 공제돼요. 그 외 최대 700만원.",
       },
       "taxCredit.educationCredit": {
         title: "교육비 세액공제",
-        body: "자녀 학교·유치원·어린이집 비용의 15%를 세금에서 빼줘요.",
+        body: "자녀 학교·유치원·어린이집 비용의 15%를 세금에서 빼줘요.\n자녀 1인당 초중고 300만원, 대학 900만원 한도예요.",
       },
       "taxCredit.donationCredit": {
         title: "기부금 세액공제",
-        body: "기부한 금액의 15~30%를 세금에서 빼줘요.",
+        body: "기부한 금액의 15~30%를 세금에서 빼줘요.\n1,000만원 초과분은 30% 공제율이 적용돼요.",
       },
       "taxCredit.rentCredit": {
         title: "월세 세액공제",
-        body: "월세로 낸 금액의 15~17%를 세금에서 빼줘요. 연 1,000만원 한도예요.",
+        body: "월세로 낸 금액의 15~17%를 세금에서 빼줘요. 연 1,000만원 한도예요.\n최대 170만원까지 공제 가능해요. (납입액 1,000만×17% 기준)",
       },
       "taxCredit.marriageCredit": {
         title: "결혼 세액공제",
-        body: "2024~2026년에 혼인신고를 했다면 50만원을 세금에서 한 번만 빼줘요.",
+        body: "2024~2026년에 혼인신고를 했다면 50만원을 세금에서 한 번만 빼줘요.\n생애 1회, 50만원 공제예요.",
       },
 
       // 기납부세액 탭
@@ -1423,7 +1424,7 @@ export default function TaxCalculator() {
                   <Info className="w-3 h-3 text-[#3182F6]" />
                 </button>
               </div>
-              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+              <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
                 <FlowSummaryRowWithInfo
                   label="종합소득금액"
                   value={calculatedResult.flow.totalIncome}
@@ -1431,18 +1432,21 @@ export default function TaxCalculator() {
                   onInfoClick={handleInfoClick}
                 />
                 <FlowSummaryRowWithInfo
-                  label="소득공제"
+                  label="- 소득공제"
                   value={calculatedResult.flow.totalIncomeDeduction}
                   minus
                   infoKey="summary.incomeDeduction"
                   onInfoClick={handleInfoClick}
                 />
-                <FlowSummaryRowWithInfo
-                  label="과세표준"
-                  value={calculatedResult.flow.taxableIncome}
-                  infoKey="summary.taxableIncome"
-                  onInfoClick={handleInfoClick}
-                />
+                <div className="border-t border-gray-200 pt-3">
+                  <FlowSummaryRowWithInfo
+                    label="= 과세표준"
+                    value={calculatedResult.flow.taxableIncome}
+                    bold
+                    infoKey="summary.taxableIncome"
+                    onInfoClick={handleInfoClick}
+                  />
+                </div>
                 <FlowSummaryRowWithInfo
                   label="산출세액"
                   value={calculatedResult.flow.calculatedTax}
@@ -1450,21 +1454,23 @@ export default function TaxCalculator() {
                   onInfoClick={handleInfoClick}
                 />
                 <FlowSummaryRowWithInfo
-                  label="세액공제"
+                  label="- 세액공제"
                   value={calculatedResult.flow.totalTaxCredit}
                   minus
                   infoKey="summary.taxCredit"
                   onInfoClick={handleInfoClick}
                 />
+                <div className="border-t border-gray-200 pt-3">
+                  <FlowSummaryRowWithInfo
+                    label="= 결정세액"
+                    value={calculatedResult.flow.finalTax}
+                    bold
+                    infoKey="summary.finalTax"
+                    onInfoClick={handleInfoClick}
+                  />
+                </div>
                 <FlowSummaryRowWithInfo
-                  label="결정세액"
-                  value={calculatedResult.flow.finalTax}
-                  bold
-                  infoKey="summary.finalTax"
-                  onInfoClick={handleInfoClick}
-                />
-                <FlowSummaryRowWithInfo
-                  label="기납부세액"
+                  label="- 기납부세액"
                   value={calculatedResult.flow.prepaidTax}
                   minus
                   infoKey="summary.prepaidTax"
@@ -1472,7 +1478,7 @@ export default function TaxCalculator() {
                 />
                 <div className="border-t border-gray-200 pt-3">
                   <FlowSummaryRowWithInfo
-                    label={calculatedResult.final.isRefund ? "환급액" : "납부액"}
+                    label={calculatedResult.final.isRefund ? "= 환급액" : "= 납부액"}
                     value={calculatedResult.final.amount}
                     bold
                     highlight={calculatedResult.final.isRefund ? "blue" : "red"}
@@ -1815,7 +1821,7 @@ export default function TaxCalculator() {
                       <Info className="w-3 h-3 text-[#3182F6]" />
                     </button>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
                     <FlowSummaryRowWithInfo
                       label="종합소득금액"
                       value={calculatedResult.flow.totalIncome}
@@ -1823,18 +1829,21 @@ export default function TaxCalculator() {
                       onInfoClick={handleInfoClick}
                     />
                     <FlowSummaryRowWithInfo
-                      label="소득공제"
+                      label="- 소득공제"
                       value={calculatedResult.flow.totalIncomeDeduction}
                       minus
                       infoKey="summary.incomeDeduction"
                       onInfoClick={handleInfoClick}
                     />
-                    <FlowSummaryRowWithInfo
-                      label="과세표준"
-                      value={calculatedResult.flow.taxableIncome}
-                      infoKey="summary.taxableIncome"
-                      onInfoClick={handleInfoClick}
-                    />
+                    <div className="border-t border-gray-200 pt-3">
+                      <FlowSummaryRowWithInfo
+                        label="= 과세표준"
+                        value={calculatedResult.flow.taxableIncome}
+                        bold
+                        infoKey="summary.taxableIncome"
+                        onInfoClick={handleInfoClick}
+                      />
+                    </div>
                     <FlowSummaryRowWithInfo
                       label="산출세액"
                       value={calculatedResult.flow.calculatedTax}
@@ -1842,21 +1851,23 @@ export default function TaxCalculator() {
                       onInfoClick={handleInfoClick}
                     />
                     <FlowSummaryRowWithInfo
-                      label="세액공제"
+                      label="- 세액공제"
                       value={calculatedResult.flow.totalTaxCredit}
                       minus
                       infoKey="summary.taxCredit"
                       onInfoClick={handleInfoClick}
                     />
+                    <div className="border-t border-gray-200 pt-3">
+                      <FlowSummaryRowWithInfo
+                        label="= 결정세액"
+                        value={calculatedResult.flow.finalTax}
+                        bold
+                        infoKey="summary.finalTax"
+                        onInfoClick={handleInfoClick}
+                      />
+                    </div>
                     <FlowSummaryRowWithInfo
-                      label="결정세액"
-                      value={calculatedResult.flow.finalTax}
-                      bold
-                      infoKey="summary.finalTax"
-                      onInfoClick={handleInfoClick}
-                    />
-                    <FlowSummaryRowWithInfo
-                      label="기납부세액"
+                      label="- 기납부세액"
                       value={calculatedResult.flow.prepaidTax}
                       minus
                       infoKey="summary.prepaidTax"
@@ -1864,7 +1875,7 @@ export default function TaxCalculator() {
                     />
                     <div className="border-t border-gray-200 pt-3">
                       <FlowSummaryRowWithInfo
-                        label={calculatedResult.final.isRefund ? "환급액" : "납부액"}
+                        label={calculatedResult.final.isRefund ? "= 환급액" : "= 납부액"}
                         value={calculatedResult.final.amount}
                         bold
                         highlight={calculatedResult.final.isRefund ? "blue" : "red"}
@@ -2093,9 +2104,22 @@ export default function TaxCalculator() {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               내 종합소득세 간편계산기
             </h1>
-            <p className="text-gray-500 text-sm mb-6">
+            <p className="text-gray-500 text-sm mb-3">
               직장 다니면서 부업 소득이 있다면, 5월에 세금을 추가로 내야 할 수 있어요.
             </p>
+
+            {/* 연말정산 안내 배너 */}
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start justify-between gap-3 mb-4">
+              <p className="text-sm text-amber-800 leading-relaxed">
+                부업·프리랜서 수입이 없는 직장인이라면
+              </p>
+              <Link
+                href="/yearend"
+                className="shrink-0 text-sm font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
+              >
+                연말정산 계산하기 →
+              </Link>
+            </div>
 
             {/* 연말정산 여부 선택 카드 */}
             <div className="border border-gray-200 rounded-2xl p-5 mb-4 bg-white">
@@ -2298,12 +2322,9 @@ export default function TaxCalculator() {
 
                   {/* 혼인신고 여부 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-3">
                       2024년 1월 이후 혼인신고를 했나요?
                     </label>
-                    <p className="text-xs text-gray-500 mb-3">
-                      해당되면 50만원 세액공제를 받을 수 있어요
-                    </p>
                     <ToggleButtons
                       options={[
                         { value: true, label: "했어요" },
@@ -2354,8 +2375,7 @@ export default function TaxCalculator() {
                       IRP에 작년 한 해 얼마 넣었나요?
                     </label>
                     <p className="text-xs text-gray-500 mb-2">
-                      연금저축과 별개로 가입하는 퇴직연금 계좌예요.<br />
-                      연금저축+IRP 합산 연 900만원까지 공제돼요
+                      연금저축과 별개로 가입하는 퇴직연금 계좌예요.
                     </p>
                     <div className="relative">
                       <input
@@ -2461,12 +2481,9 @@ export default function TaxCalculator() {
 
                   {/* 주택청약저축 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
                       주택청약저축에 작년 한 해 얼마 넣었나요?
                     </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      무주택자만 소득공제를 받을 수 있어요
-                    </p>
                     <div className="relative">
                       <input
                         type="text"
