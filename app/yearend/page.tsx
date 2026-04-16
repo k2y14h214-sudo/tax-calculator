@@ -980,7 +980,7 @@ export default function YearEndCalculator() {
     <div className="p-5 space-y-4">
       {/* 제목 */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900">내 연말정산 계산하기</h2>
+        <h2 className="text-xl font-bold text-gray-900">내 연말정산 간편계산기</h2>
         <p className="text-sm text-gray-500 mt-1">작년 한 해 얼마나 돌려받을 수 있는지 확인해보세요</p>
       </div>
 
@@ -993,7 +993,7 @@ export default function YearEndCalculator() {
           href="/"
           className="shrink-0 text-sm font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
         >
-          종합소득세 계산기 →
+          종합소득세 계산하기 →
         </Link>
       </div>
 
@@ -1055,12 +1055,9 @@ export default function YearEndCalculator() {
 
             {/* 자녀 수 */}
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-1">
+              <label className="block text-sm font-medium text-gray-800 mb-3">
                 만 7세 이상 자녀가 몇 명인가요?
               </label>
-              <p className="text-xs text-gray-500 mb-3">
-                자녀 세액공제 대상 기준이에요
-              </p>
               <Stepper
                 value={childrenCount}
                 min={0}
@@ -1088,7 +1085,7 @@ export default function YearEndCalculator() {
             {/* 혼인신고 */}
             <div>
               <label className="block text-sm font-medium text-gray-800 mb-1">
-                올해 혼인신고를 했나요?
+                2024년 1월 이후 혼인신고를 했나요?
               </label>
               <p className="text-xs text-gray-500 mb-3">
                 2024~2026년 혼인신고 시 50만원 세액공제를 받을 수 있어요
@@ -1118,7 +1115,7 @@ export default function YearEndCalculator() {
               <label className="block text-sm font-medium text-gray-800 mb-1">
                 연금저축 납입액
               </label>
-              <p className="text-xs text-gray-500 mb-2">연 600만원 한도 (연금저축보험·펀드 등)</p>
+              <p className="text-xs text-gray-500 mb-2">연금저축보험, 연금저축펀드 등이 해당돼요</p>
               <div className="relative">
                 <input
                   type="text"
@@ -1138,7 +1135,8 @@ export default function YearEndCalculator() {
                 IRP 납입액
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                연금저축 + IRP 합산 연 900만원 한도 (개인형 퇴직연금)
+                연금저축과 별개로 가입하는 퇴직연금 계좌예요.<br />
+                연금저축+IRP 합산 연 900만원까지 공제돼요
               </p>
               <div className="relative">
                 <input
@@ -1165,12 +1163,9 @@ export default function YearEndCalculator() {
           <div className="space-y-6 pt-4">
             {/* 월세 여부 */}
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-1">
+              <label className="block text-sm font-medium text-gray-800 mb-3">
                 현재 월세 살고 있나요?
               </label>
-              <p className="text-xs text-gray-500 mb-3">
-                무주택자이고 총급여 8천만원 이하인 경우 세액공제를 받을 수 있어요
-              </p>
               <ToggleButtons
                 options={[
                   { value: true, label: "네, 월세예요" },
@@ -1203,12 +1198,9 @@ export default function YearEndCalculator() {
 
             {/* 무주택 세대주 여부 */}
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-1">
+              <label className="block text-sm font-medium text-gray-800 mb-3">
                 무주택 세대주인가요?
               </label>
-              <p className="text-xs text-gray-500 mb-3">
-                주택청약저축 공제, 전세대출 공제에 필요해요
-              </p>
               <ToggleButtons
                 options={[
                   { value: true, label: "네" },
@@ -1270,7 +1262,7 @@ export default function YearEndCalculator() {
                 주택담보대출 이자 상환액
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                연 최대 800만~2,000만원 공제 (상환방식에 따라 다름)
+                주택담보대출을 받았다면 이자로 낸 금액을 알려주세요
               </p>
               <div className="relative">
                 <input
@@ -1297,12 +1289,9 @@ export default function YearEndCalculator() {
           <div className="space-y-6 pt-4">
             {/* 신용카드·체크카드 */}
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-1">
+              <label className="block text-sm font-medium text-gray-800 mb-4">
                 신용카드·체크카드 사용액
               </label>
-              <p className="text-xs text-gray-500 mb-4">
-                연봉의 25%를 넘게 쓴 금액부터 공제가 시작돼요
-              </p>
 
               {!dontKnowCardAmount ? (
                 <div className="space-y-4">
@@ -1397,12 +1386,9 @@ export default function YearEndCalculator() {
 
             {/* 의료비 */}
             <div className="pt-4 border-t border-gray-100">
-              <label className="block text-sm font-medium text-gray-800 mb-1">
+              <label className="block text-sm font-medium text-gray-800 mb-2">
                 의료비 (총 지출액)
               </label>
-              <p className="text-xs text-gray-500 mb-2">
-                연봉의 3% 초과분부터 공제, 한도 700만원
-              </p>
               <div className="relative">
                 <input
                   type="text"
@@ -1422,7 +1408,7 @@ export default function YearEndCalculator() {
                 교육비
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                자녀 학원비 제외, 학교·유치원·어린이집만 해당
+                초·중·고·대학교 교육비만 해당돼요. 학원비는 제외예요
               </p>
               <div className="relative">
                 <input
@@ -1461,7 +1447,8 @@ export default function YearEndCalculator() {
                 보장성 보험료
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                실손·암보험 등, 연 100만원 한도
+                실손보험, 암보험, 종신보험 등 보장 목적의 보험이에요.<br />
+                저축성 보험은 해당 안 돼요
               </p>
               <div className="relative">
                 <input
@@ -1527,7 +1514,7 @@ export default function YearEndCalculator() {
   const infoSection = (
     <div className="p-5 pt-12 space-y-0">
       <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-2">
-        <h1 className="text-[1.65rem] font-bold text-gray-900">연말정산이 뭔데??!!! 💰</h1>
+        <h1 className="text-[1.65rem] font-bold text-gray-900">회사원을 위한 떠먹여주는 연말정산 설명!! 💰</h1>
       </div>
 
       {/* 1. 연말정산이란? */}

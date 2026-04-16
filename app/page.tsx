@@ -816,7 +816,7 @@ export default function TaxCalculator() {
   const infoSection = (
     <div className="p-5 pt-12 space-y-0">
       <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-2">
-        <h1 className="text-[1.65rem] font-bold text-gray-900">종합소득세가 뭔데??!!! 💸</h1>
+        <h1 className="text-[1.65rem] font-bold text-gray-900">투잡러를 위한 떠먹여주는 종소세 설명!! 💸</h1>
       </div>
 
       {/* 1. 종합소득세란? */}
@@ -2091,7 +2091,7 @@ export default function TaxCalculator() {
             <div className="p-5">
             {/* 제목 */}
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              내 종합소득세 계산하기
+              내 종합소득세 간편계산기
             </h1>
             <p className="text-gray-500 text-sm mb-6">
               직장 다니면서 부업 소득이 있다면, 5월에 세금을 추가로 내야 할 수 있어요.
@@ -2299,7 +2299,7 @@ export default function TaxCalculator() {
                   {/* 혼인신고 여부 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-800 mb-1">
-                      2024~2026년 사이에 혼인신고를 하셨나요?
+                      2024년 1월 이후 혼인신고를 했나요?
                     </label>
                     <p className="text-xs text-gray-500 mb-3">
                       해당되면 50만원 세액공제를 받을 수 있어요
@@ -2331,7 +2331,7 @@ export default function TaxCalculator() {
                       연금저축에 작년 한 해 얼마 넣었나요?
                     </label>
                     <p className="text-xs text-gray-500 mb-2">
-                      연금저축보험, 연금저축펀드 등
+                      연금저축보험, 연금저축펀드 등이 해당돼요
                     </p>
                     <div className="relative">
                       <input
@@ -2354,7 +2354,8 @@ export default function TaxCalculator() {
                       IRP에 작년 한 해 얼마 넣었나요?
                     </label>
                     <p className="text-xs text-gray-500 mb-2">
-                      개인형 퇴직연금 계좌
+                      연금저축과 별개로 가입하는 퇴직연금 계좌예요.<br />
+                      연금저축+IRP 합산 연 900만원까지 공제돼요
                     </p>
                     <div className="relative">
                       <input
@@ -2410,8 +2411,7 @@ export default function TaxCalculator() {
                 <div className="space-y-6">
                   {/* 무주택 세대주 여부 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">무주택 세대주인가요?</label>
-                    <p className="text-xs text-gray-500 mb-3">주택청약저축 소득공제와 월세 세액공제에 필요해요</p>
+                    <label className="block text-sm font-medium text-gray-800 mb-3">무주택 세대주인가요?</label>
                     <ToggleButtons
                       options={[
                         { value: true, label: "네" },
@@ -2424,12 +2424,9 @@ export default function TaxCalculator() {
 
                   {/* 월세 여부 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-3">
                       현재 월세로 살고 계신가요?
                     </label>
-                    <p className="text-xs text-gray-500 mb-3">
-                      무주택자이고 총급여 8천만원 이하인 경우 세액공제를 받을 수 있어요
-                    </p>
                     <ToggleButtons
                       options={[
                         { value: true, label: "네, 월세예요" },
@@ -2499,12 +2496,9 @@ export default function TaxCalculator() {
                 <div className="space-y-6">
                   {/* 병원비 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
                       병원비로 쓴 돈이 얼마인가요?
                     </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      본인과 가족 합산, 실손보험으로 돌려받은 금액은 빼주세요
-                    </p>
                     <div className="relative">
                       <input
                         type="text"
@@ -2526,7 +2520,7 @@ export default function TaxCalculator() {
                       자녀 교육비로 쓴 돈이 얼마인가요?
                     </label>
                     <p className="text-xs text-gray-500 mb-2">
-                      {"학원비는 해당 안 되고, 학교·유치원·어린이집 비용만 해당돼요"}
+                      초·중·고·대학교 교육비만 해당돼요. 학원비는 제외예요
                     </p>
                     <div className="relative">
                       <input
@@ -2565,9 +2559,13 @@ export default function TaxCalculator() {
 
                   {/* 보장성 보험료 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                    <label className="block text-sm font-medium text-gray-800 mb-1">
                       실손보험, 암보험 등 보장성 보험료를 작년에 얼마 내셨나요?
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      실손보험, 암보험, 종신보험 등 보장 목적의 보험이에요.<br />
+                      저축성 보험은 해당 안 돼요
+                    </p>
                     <div className="relative">
                       <input
                         type="text"
@@ -2585,12 +2583,9 @@ export default function TaxCalculator() {
 
                   {/* 신용카드/체크카드 사용액 */}
                   <div className="pt-4 border-t border-gray-100">
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-4">
                       카드와 현금으로 쓴 금액을 알려주세요
                     </label>
-                    <p className="text-xs text-gray-500 mb-4">
-                      {"연봉의 25%를 넘게 쓴 금액부터 공제가 시작돼요"}
-                    </p>
 
                     {!dontKnowCardAmount ? (
                       <div className="space-y-4">
@@ -2698,7 +2693,7 @@ export default function TaxCalculator() {
                       주택담보대출 이자로 낸 금액이 있나요?
                     </label>
                     <p className="text-xs text-gray-500 mb-2">
-                      작년 한 해 동안 낸 대출 이자 총액이에요. 연 최대 2,000만원까지 공제돼요
+                      주택담보대출을 받았다면 이자로 낸 금액을 알려주세요
                     </p>
                     <div className="relative">
                       <input
