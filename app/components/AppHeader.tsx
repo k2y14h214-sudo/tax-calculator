@@ -68,7 +68,7 @@ export default function AppHeader({
             href="/"
             onClick={() => setMenuOpen(false)}
             className={`block px-4 py-3 border-b border-gray-100 text-sm ${
-              isHome ? "text-[#3182F6] font-medium" : "text-gray-800"
+              isHome ? "text-[#3182F6] font-semibold" : "text-gray-700"
             }`}
           >
             종합소득세 계산기
@@ -77,12 +77,11 @@ export default function AppHeader({
           <Link
             href="/yearend"
             onClick={() => setMenuOpen(false)}
-            className={`flex items-center justify-between px-4 py-3 border-b border-gray-100 text-sm ${
-              pathname === "/yearend" ? "text-[#3182F6] font-medium" : "text-gray-800"
+            className={`block px-4 py-3 border-b border-gray-100 text-sm ${
+              pathname === "/yearend" ? "text-[#3182F6] font-semibold" : "text-gray-700"
             }`}
           >
-            <span>연말정산</span>
-            <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">준비중</span>
+            연말정산
           </Link>
         </nav>
       </div>
