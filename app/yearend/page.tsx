@@ -669,20 +669,20 @@ export default function YearEndCalculator() {
     "inc.personal":   { title: "인적공제", body: "본인+부양가족 1인당 150만원씩 빼줘요." },
     "inc.pension":    { title: "국민연금", body: "납입한 국민연금 보험료 전액을 빼줘요. 연봉의 4.5%예요." },
     "inc.health":     { title: "건강보험료", body: "납입한 건강·장기요양·고용보험료 전액을 빼줘요." },
-    "inc.housing":    { title: "주택청약저축", body: "무주택 세대주가 납입한 금액의 40%. 연 300만원 한도예요." },
-    "inc.lease":      { title: "전세자금대출", body: "전세대출 원금+이자 상환액의 40%. 연 400만원 한도예요." },
-    "inc.mortgage":   { title: "주담대 이자", body: "주택담보대출 이자 상환액. 연 최대 2,000만원까지 공제돼요." },
-    "inc.card":       { title: "신용카드 등", body: "연봉의 25% 초과 사용액부터 공제. 신용카드 15%, 체크카드 30%예요." },
+    "inc.housing":    { title: "주택청약저축", body: "무주택 세대주가 납입한 금액의 40%. 연 300만원 한도예요. 최대 120만원까지 공제 가능해요." },
+    "inc.lease":      { title: "전세자금대출", body: "전세대출 원금+이자 상환액의 40%. 연 400만원 한도예요. 최대 400만원까지 공제 가능해요." },
+    "inc.mortgage":   { title: "주담대 이자", body: "주택담보대출 이자 상환액. 연 최대 2,000만원까지 공제돼요. 최대 800만~2,000만원까지 공제 가능해요." },
+    "inc.card":       { title: "신용카드 등", body: "연봉의 25% 초과 사용액부터 공제. 신용카드 15%, 체크카드 30%예요. 최대 300만원까지 공제 가능해요." },
     // 세액공제 탭
     "tax.earned":     { title: "근로소득 세액공제", body: "직장인이라면 자동으로 받아요. 산출세액의 일정 비율을 빼줘요." },
     "tax.child":      { title: "자녀 세액공제", body: "만 7세 이상 자녀 1명 15만, 2명 35만, 3명 이상 65만원이에요." },
-    "tax.pension":    { title: "연금저축·IRP", body: "납입액의 12~15%를 세금에서 빼줘요. 합산 연 900만원 한도예요." },
-    "tax.insurance":  { title: "보장성 보험료", body: "실손·암보험 등 납입액의 12%. 연 100만원 한도예요." },
-    "tax.medical":    { title: "의료비", body: "연봉의 3% 초과 병원비의 15%를 빼줘요." },
-    "tax.education":  { title: "교육비", body: "자녀 학교·유치원 비용의 15%를 빼줘요." },
-    "tax.donation":   { title: "기부금", body: "기부액의 15~30%를 빼줘요." },
-    "tax.rent":       { title: "월세", body: "월세액의 15~17%를 빼줘요. 연 1,000만원 한도예요." },
-    "tax.marriage":   { title: "혼인", body: "2024~2026년 혼인신고 시 1회 50만원 공제예요." },
+    "tax.pension":    { title: "연금저축·IRP", body: "납입액의 12~15%를 세금에서 빼줘요. 합산 연 900만원 한도예요. 최대 148만5천원까지 공제 가능해요. (납입액 900만×15% 기준)" },
+    "tax.insurance":  { title: "보장성 보험료", body: "실손·암보험 등 납입액의 12%. 연 100만원 한도예요. 최대 12만원까지 공제 가능해요." },
+    "tax.medical":    { title: "의료비", body: "연봉의 3% 초과 병원비의 15%를 빼줘요. 본인·65세이상·장애인은 한도 없이 공제돼요. 그 외 최대 700만원." },
+    "tax.education":  { title: "교육비", body: "자녀 학교·유치원 비용의 15%를 빼줘요. 자녀 1인당 초중고 300만원, 대학 900만원 한도예요." },
+    "tax.donation":   { title: "기부금", body: "기부액의 15~30%를 빼줘요. 1,000만원 초과분은 30% 공제율이 적용돼요." },
+    "tax.rent":       { title: "월세", body: "월세액의 15~17%를 빼줘요. 연 1,000만원 한도예요. 최대 170만원까지 공제 가능해요. (납입액 1,000만×17% 기준)" },
+    "tax.marriage":   { title: "혼인", body: "2024~2026년 혼인신고 시 1회 50만원 공제예요. 생애 1회, 50만원 공제예요." },
     // 기납부세액 탭
     "pre.withholding": { title: "근로소득 원천징수세액", body: "회사가 매달 월급에서 미리 뗀 세금이에요." },
   }
@@ -1087,9 +1087,6 @@ export default function YearEndCalculator() {
               <label className="block text-sm font-medium text-gray-800 mb-1">
                 2024년 1월 이후 혼인신고를 했나요?
               </label>
-              <p className="text-xs text-gray-500 mb-3">
-                2024~2026년 혼인신고 시 50만원 세액공제를 받을 수 있어요
-              </p>
               <ToggleButtons
                 options={[
                   { value: true, label: "했어요" },
@@ -1135,8 +1132,7 @@ export default function YearEndCalculator() {
                 IRP 납입액
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                연금저축과 별개로 가입하는 퇴직연금 계좌예요.<br />
-                연금저축+IRP 합산 연 900만원까지 공제돼요
+                연금저축과 별개로 가입하는 퇴직연금 계좌예요.
               </p>
               <div className="relative">
                 <input
@@ -1218,9 +1214,6 @@ export default function YearEndCalculator() {
                   <label className="block text-sm font-medium text-gray-800 mb-1">
                     주택청약저축 납입액
                   </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    연 300만원 한도, 납입액의 40% 소득공제
-                  </p>
                   <div className="relative">
                     <input
                       type="text"
@@ -1239,7 +1232,7 @@ export default function YearEndCalculator() {
                     전세자금대출 원리금 상환액
                   </label>
                   <p className="text-xs text-gray-500 mb-2">
-                    전세대출 원금+이자 합계. 연 400만원까지 공제 (소득세법 제52조 제5항)
+                    전세대출을 받고 있다면 원금+이자 합계 금액을 알려주세요
                   </p>
                   <div className="relative">
                     <input
@@ -1523,9 +1516,9 @@ export default function YearEndCalculator() {
           <span className="text-2xl font-bold text-[#3182F6]">1</span>
           <h2 className="text-lg font-semibold text-gray-900">연말정산이란?</h2>
         </div>
-        <p className="text-lg font-bold text-gray-900 mb-2">회사가 1년치 세금을 대신 정산해주는 것.</p>
+        <p className="text-lg font-bold text-gray-900 mb-2">내가 진짜 내야 할 세금을 계산하는 것.</p>
         <p className="text-sm text-gray-500 leading-relaxed mb-4">
-          매달 월급에서 세금을 미리 뗐는데, 연말에 실제 세금과 비교해서<br />
+          매달 월급에서 세금을 미리 뗐는데, 연말에 실제로 내야 할 세금과 비교해서<br />
           더 냈으면 돌려주고, 덜 냈으면 더 내는 과정이에요.
         </p>
         <div className="bg-gray-50 rounded-2xl p-4">
@@ -1536,13 +1529,39 @@ export default function YearEndCalculator() {
         </div>
       </section>
 
-      {/* 2. 종합소득세랑 다른 건가요? */}
+      {/* 2. 13월의 월급, 항상 받을 수 있나요? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl font-bold text-[#3182F6]">2</span>
+          <h2 className="text-lg font-semibold text-gray-900">13월의 월급, 항상 받을 수 있나요?</h2>
+        </div>
+        <p className="text-lg font-bold text-gray-900 mb-2">아니에요. 환급이 보장된 건 아니에요.</p>
+        <p className="text-sm text-gray-500 leading-relaxed mb-4">
+          연말정산 결과는 이미 낸 세금(원천징수)과 실제 세금(결정세액)의<br />
+          차이예요. 공제 항목이 많으면 환급, 적으면 추가납부가 돼요.
+        </p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-blue-50 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-blue-700 mb-2">💰 환급 받는 경우</p>
+            <p className="text-sm text-blue-700 leading-relaxed">실제 세금 &lt; 이미 낸 세금<br />→ 차액 돌려받음</p>
+          </div>
+          <div className="bg-red-50 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-red-600 mb-2">😬 추가납부 하는 경우</p>
+            <p className="text-sm text-red-600 leading-relaxed">실제 세금 &gt; 이미 낸 세금<br />→ 차액 더 냄</p>
+          </div>
+        </div>
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-amber-700 text-sm leading-relaxed">
+          공제 항목을 꼼꼼히 챙길수록 환급 가능성이 높아져요.<br />
+          이 계산기로 미리 확인해보세요!
+        </div>
+      </section>
+
+      {/* 3. 종합소득세랑 다른 건가요? */}
+      <section className="py-8 border-b border-gray-100">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-2xl font-bold text-[#3182F6]">3</span>
           <h2 className="text-lg font-semibold text-gray-900">종합소득세랑 다른 건가요?</h2>
         </div>
-
         <div className="border border-gray-200 rounded-xl overflow-x-auto bg-white mb-3">
           <table className="w-full">
             <thead className="bg-[#e3eefc]">
@@ -1576,7 +1595,6 @@ export default function YearEndCalculator() {
             </tbody>
           </table>
         </div>
-
         <p className="text-sm text-gray-500 leading-relaxed mb-3">
           부업·프리랜서 수입이 있다면 연말정산으로 끝나지 않아요.<br />
           5월에 종합소득세 신고를 따로 해야 해요.
@@ -1589,13 +1607,12 @@ export default function YearEndCalculator() {
         </Link>
       </section>
 
-      {/* 3. 세금이 어떻게 계산되나요? */}
+      {/* 4. 세금이 어떻게 계산되나요? */}
       <section className="py-8 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
-          <span className="text-2xl font-bold text-[#3182F6]">3</span>
+          <span className="text-2xl font-bold text-[#3182F6]">4</span>
           <h2 className="text-lg font-semibold text-gray-900">세금이 어떻게 계산되나요?</h2>
         </div>
-
         <div className="bg-gray-50 rounded-xl p-3 mb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/decision-tax-formula.svg" className="w-1/2 mx-auto" alt="세금 계산 공식" />
@@ -1672,33 +1689,6 @@ export default function YearEndCalculator() {
             <div className="px-3 py-2 bg-gray-50 text-xs text-gray-500">* 2024년 귀속 기준 (소득세법 제55조)</div>
           </div>
         )}
-      </section>
-
-      {/* 4. 13월의 월급, 항상 받을 수 있나요? */}
-      <section className="py-8 border-b border-gray-100">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-2xl font-bold text-[#3182F6]">4</span>
-          <h2 className="text-lg font-semibold text-gray-900">13월의 월급, 항상 받을 수 있나요?</h2>
-        </div>
-        <p className="text-lg font-bold text-gray-900 mb-2">아니에요. 환급이 보장된 건 아니에요.</p>
-        <p className="text-sm text-gray-500 leading-relaxed mb-4">
-          연말정산 결과는 이미 낸 세금(원천징수)과 실제 세금(결정세액)의<br />
-          차이예요. 공제 항목이 많으면 환급, 적으면 추가납부가 돼요.
-        </p>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-blue-50 rounded-2xl p-4">
-            <p className="text-sm font-semibold text-blue-700 mb-2">💰 환급 받는 경우</p>
-            <p className="text-sm text-blue-700 leading-relaxed">실제 세금 &lt; 이미 낸 세금<br />→ 차액 돌려받음</p>
-          </div>
-          <div className="bg-red-50 rounded-2xl p-4">
-            <p className="text-sm font-semibold text-red-600 mb-2">😬 추가납부 하는 경우</p>
-            <p className="text-sm text-red-600 leading-relaxed">실제 세금 &gt; 이미 낸 세금<br />→ 차액 더 냄</p>
-          </div>
-        </div>
-        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-amber-700 text-sm leading-relaxed">
-          공제 항목을 꼼꼼히 챙길수록 환급 가능성이 높아져요.<br />
-          이 계산기로 미리 확인해보세요!
-        </div>
       </section>
 
       {/* 5. 뭐가 필요한가요? */}
