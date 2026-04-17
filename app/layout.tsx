@@ -13,13 +13,14 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: '투잡러를 위한 종합소득세 계산기',
-  description: '부업 수입이 있는 직장인을 위한 종합소득세 계산기. 합산신고 vs 분리과세 비교, 환급/납부액 계산까지.',
+  title: '13월의 월급, 투잡러는 2번 받을 수 있다',
+  description: '직장인은 1번, 투잡러는 2번 — 13월의 월급 제대로 챙기는 법. 내 종소세 5분만에 계산해보세요.',
   keywords: '종합소득세 계산기, 투잡 세금, 부업 세금, 분리과세, 합산신고, 종소세',
   generator: 'v0.app',
   openGraph: {
-    title: '투잡러를 위한 종합소득세 계산기',
-    description: '부업 수입이 있는 직장인을 위한 종합소득세 계산기. 합산신고 vs 분리과세 비교, 환급/납부액 계산까지.',
+    title: '13월의 월급, 투잡러는 2번 받을 수 있다',
+    description: '직장인은 1번, 투잡러는 2번 — 13월의 월급 제대로 챙기는 법. 내 종소세 5분만에 계산해보세요.',
+    url: 'https://tax-calculator-xehw.vercel.app',
     type: 'website',
   },
   icons: {
