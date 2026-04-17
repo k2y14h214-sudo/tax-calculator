@@ -512,53 +512,8 @@ export default function YearEndCalculator() {
     // 세액공제
     const earnedIncomeTaxCredit = calculateEarnedIncomeCredit(calculatedTax, salaryNum)
 
-    let childTaxCredit = 0
-    if (childrenCount === 1) childTaxCredit = 150000
-    else if (childrenCount === 2) childTaxCredit = 350000
-    else if (childrenCount >= 3) childTaxCredit = 350000 + (childrenCount - 2) * 300000
-
-    const pensionEligible = Math.min(
-      Math.min(parseNumber(pensionSavings), 6000000) + parseNumber(irp),
-      9000000
-    )
-    const pensionRate = salaryNum <= 55000000 ? 0.15 : 0.12
-    const pensionSavingsCredit = Math.max(0, Math.round(pensionEligible * pensionRate))
-
-    const insuranceTaxCredit = Math.max(
-      0,
-      Math.round(Math.min(parseNumber(insurancePremium), 1000000) * 0.12)
-    )
-
-    const medicalBase = Math.max(0, parseNumber(medicalExpense) - salaryNum * 0.03)
-    const medicalCredit = Math.max(0, Math.round(Math.min(medicalBase, 7000000) * 0.15))
-
-    const educationCredit = Math.max(0, Math.round(parseNumber(educationExpense) * 0.15))
-
-    const donationNum = parseNumber(donation)
-    const donationCredit = Math.max(
-      0,
-      Math.round(Math.min(donationNum, 10000000) * 0.15 + Math.max(donationNum - 10000000, 0) * 0.3)
-    )
-
-    let rentCredit = 0
-    if (isRenting === true && isHousingOwner === true) {
-      const rentBase = Math.min(parseNumber(annualRent), 10000000)
-      if (salaryNum <= 55000000) rentCredit = Math.round(rentBase * 0.17)
-      else if (salaryNum <= 80000000) rentCredit = Math.round(rentBase * 0.15)
-    }
-
-    const marriageCredit = isNewlyMarried === true ? 500000 : 0
-
-    const totalTaxCredit =
-      earnedIncomeTaxCredit +
-      childTaxCredit +
-      pensionSavingsCredit +
-      insuranceTaxCredit +
-      medicalCredit +
-      educationCredit +
-      donationCredit +
-      rentCredit +
-      marriageCredit
+    // 원천징수 추정은 월 급여 원천징수 성격에 맞춰 근로소득 세액공제만 반영한다.
+    const totalTaxCredit = earnedIncomeTaxCredit
 
     return Math.max(0, Math.round(calculatedTax - totalTaxCredit))
   }
