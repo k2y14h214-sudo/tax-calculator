@@ -1232,7 +1232,7 @@ export default function YearEndCalculator() {
                     전세자금대출 원리금 상환액
                   </label>
                   <p className="text-xs text-gray-500 mb-2">
-                    전세대출을 받고 있다면 원금+이자 합계 금액을 알려주세요
+                    전세대출을 받고 있다면 올해 갚은 원금+이자 합계 금액을 알려주세요
                   </p>
                   <div className="relative">
                     <input
@@ -1473,9 +1473,6 @@ export default function YearEndCalculator() {
               <p className="text-xs text-gray-500 mb-1">
                 원천징수영수증의 &apos;결정세액&apos; 또는 회사에서 받은 연말정산 결과지를 확인해주세요
               </p>
-              <p className="text-xs text-gray-400 mb-2">
-                모르면 0으로 두세요 — 연봉 기준으로 자동 추정해드려요
-              </p>
               <div className="relative">
                 <input
                   type="text"
@@ -1490,7 +1487,7 @@ export default function YearEndCalculator() {
               {!withholdingTax && salary && (
                 <div className="flex items-center gap-2 mt-2 text-xs text-amber-600">
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  <span>이 금액은 추정값이에요. 실제와 다를 수 있어요.</span>
+                  <span>이 금액은 입력하신 연봉으로부터 추정한 값이에요. 실제와 다를 수 있어요.</span>
                 </div>
               )}
             </div>
