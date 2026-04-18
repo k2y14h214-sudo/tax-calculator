@@ -33,6 +33,7 @@ interface TaxCalculationResult {
     nationalPensionDeduction: number // 국민연금 공제
     healthInsuranceDeduction: number // 건강보험료 공제 (mock)
     housingSubscriptionDeduction: number // 주택청약저축 소득공제
+    leaseLoanDeduction: number // 전세자금대출 원리금 상환액 공제
     cardDeduction: number // 신용카드 등 소득공제
     mortgageInterestDeduction: number // 장기주택저당차입금 이자상환액 (mock)
     yellowUmbrellaDeduction: number // 노란우산공제 (mock)
@@ -157,6 +158,7 @@ export default function TaxCalculator() {
   const [isHousingOwner, setIsHousingOwner] = useState<boolean | null>(null)
   const [annualRent, setAnnualRent] = useState("")
   const [housingSubscription, setHousingSubscription] = useState("")
+  const [leaseLoanRepayment, setLeaseLoanRepayment] = useState("")
 
   // 카테고리 5: 지출 내역
   const [medicalExpense, setMedicalExpense] = useState("")
@@ -174,8 +176,6 @@ export default function TaxCalculator() {
 
   // 카테고리 6: 기납부 세금
   const [withholdingTax, setWithholdingTax] = useState("")
-  const [sideIncomeTax, setSideIncomeTax] = useState("")
-  const [use44Percent, setUse44Percent] = useState(false)
 
   // 결과 화면 표시 여부
   const [showResult, setShowResult] = useState(false)
@@ -246,6 +246,10 @@ export default function TaxCalculator() {
         title: "주택청약저축 공제",
         body: "무주택자가 주택청약저축에 넣은 금액의 40%를 빼줘요. 연 300만원 한도예요.\n최대 120만원까지 공제 가능해요.",
       },
+      "incomeDeduction.leaseLoanDeduction": {
+        title: "전세자금대출 공제",
+        body: "전세자금대출의 원금·이자 상환액 중 일부를 소득에서 빼줘요. 연 4,000만원까지의 상환액을 기준으로 하며, 공제액은 연 400만원 한도예요.",
+      },
       "incomeDeduction.mortgageInterestDeduction": {
         title: "장기주택저당차입금 이자상환액",
         body: "주택담보대출 이자로 낸 금액을 소득에서 빼줘요. 연 최대 2,000만원까지 가능해요.\n최대 800만~2,000만원까지 공제 가능해요.",
@@ -300,7 +304,7 @@ export default function TaxCalculator() {
       },
       "prepaidTax.side": {
         title: "부업 원천징수세액",
-        body: "부업 수입에서 3.3% 또는 4.4%로 미리 뗀 세금이에요.",
+        body: "부업 수입에서 3.3%로 미리 뗀 세금이에요.",
       },
     } as const
   }, [])
@@ -400,6 +404,7 @@ export default function TaxCalculator() {
 
     const housingSubscriptionNum = parseNumber(housingSubscription)
     const mortgageInterestNum = parseNumber(mortgageInterest)
+    const leaseLoanRepaymentNum = parseNumber(leaseLoanRepayment)
 
     // 1) 소득금액: 근로소득만
     const earnedIncomeDeduction = calculateEarnedIncomeDeduction(salaryNum)
@@ -422,6 +427,10 @@ export default function TaxCalculator() {
         ? Math.max(0, Math.round(Math.min(housingSubscriptionNum, 3000000) * 0.4))
         : 0
 
+    const leaseLoanDeduction = isHousingOwner === true
+      ? Math.max(0, Math.round(Math.min(Math.min(leaseLoanRepaymentNum, 40000000) * 0.4, 4000000)))
+      : 0
+
     let cardDeduction = 0
     const cardThreshold = salaryNum * 0.25
     const totalCardSpent = creditCardNum + debitCardNum
@@ -442,9 +451,10 @@ export default function TaxCalculator() {
       housingSubscriptionDeduction +
       cardDeduction +
       yellowUmbrellaDeduction +
-      mortgageInterestDeduction
+      mortgageInterestDeduction +
+      leaseLoanDeduction
 
-    const combinedLimitTarget = cardDeduction + housingSubscriptionDeduction + yellowUmbrellaDeduction
+    const combinedLimitTarget = cardDeduction + housingSubscriptionDeduction + leaseLoanDeduction
     const combinedExcess = Math.max(0, Math.round(combinedLimitTarget - 25000000))
     const totalIncomeDeduction = Math.max(0, Math.round(totalIncomeDeductionBeforeLimit - combinedExcess))
 
@@ -464,7 +474,7 @@ export default function TaxCalculator() {
   // 부업소득 원천징수 (3.3% 또는 4.4%)
   const estimatedSideIncomeTax = () => {
     const sideIncomeNum = parseNumber(sideIncome)
-    const rate = use44Percent ? 0.044 : 0.033
+    const rate = 0.033
     return Math.round(sideIncomeNum * rate)
   }
 
@@ -486,12 +496,15 @@ export default function TaxCalculator() {
   const isFamilyComplete = hasSpouse !== null && isNewlyMarried !== null
   const isRetirementComplete = pensionSavings !== "" && irp !== "" && (incomeType !== "regular" || yellowUmbrella !== "")
   const isHousingComplete =
-    isHousingOwner !== null && isRenting !== null && housingSubscription !== "" && (isRenting === false || annualRent !== "")
+    isHousingOwner !== null &&
+    isRenting !== null &&
+    (isRenting === false || annualRent !== "") &&
+    (isHousingOwner !== true || (housingSubscription !== "" && leaseLoanRepayment !== ""))
   const isExpenseComplete = medicalExpense !== "" && educationExpense !== "" && donation !== "" && insurancePremium !== ""
-  const isTaxPaidComplete = (withholdingTax !== "" || salary !== "") && (sideIncomeTax !== "" || sideIncome !== "")
+  const isTaxPaidComplete = withholdingTax !== "" || salary !== ""
 
   // CTA 버튼 활성화 조건
-  const canCalculate = isIncomeComplete
+  const canCalculate = !!salary
 
   // 세금 계산 함수
   const calculateTax = (): TaxCalculationResult => {
@@ -507,7 +520,8 @@ export default function TaxCalculator() {
     const donationNum = parseNumber(donation)
     const insurancePremiumNum = parseNumber(insurancePremium)
     const mortgageInterestNum = parseNumber(mortgageInterest)
-    const sideIncomeTaxNum = sideIncomeTax ? parseNumber(sideIncomeTax) : estimatedSideIncomeTax()
+    const leaseLoanRepaymentNum = parseNumber(leaseLoanRepayment)
+    const sideIncomeTaxNum = estimatedSideIncomeTax()
     
     // 연말정산 결과를 알고 있는 경우
     const yearEndFinalTaxNum = knowsYearEndResult ? parseNumber(yearEndFinalTax) : 0
@@ -579,6 +593,10 @@ export default function TaxCalculator() {
         ? Math.max(0, Math.round(Math.min(housingSubscriptionNum, 3000000) * 0.4))
         : 0
 
+    const leaseLoanDeduction = isHousingOwner === true
+      ? Math.max(0, Math.round(Math.min(Math.min(leaseLoanRepaymentNum, 40000000) * 0.4, 4000000)))
+      : 0
+
     // 그밖의 소득공제: 노란우산공제 (사업소득일 때만, 사업소득금액 기준)
     let yellowUmbrellaDeduction = 0
     if (incomeType === "regular") {
@@ -610,10 +628,11 @@ export default function TaxCalculator() {
       housingSubscriptionDeduction +
       cardDeduction +
       yellowUmbrellaDeduction +
-      mortgageInterestDeduction
+      mortgageInterestDeduction +
+      leaseLoanDeduction
 
-    // 조특법 소득공제 종합한도 (카드+주택청약+노란우산 합산 2,500만원)
-    const combinedLimitTarget = cardDeduction + housingSubscriptionDeduction + yellowUmbrellaDeduction
+    // 조특법 소득공제 종합한도 (카드+주택청약+전세자금대출 합산 2,500만원)
+    const combinedLimitTarget = cardDeduction + housingSubscriptionDeduction + leaseLoanDeduction
     const combinedExcess = Math.max(0, Math.round(combinedLimitTarget - 25000000))
     const totalIncomeDeduction = Math.max(0, Math.round(totalIncomeDeductionBeforeLimit - combinedExcess))
 
@@ -714,6 +733,7 @@ export default function TaxCalculator() {
         nationalPensionDeduction,
         healthInsuranceDeduction,
         housingSubscriptionDeduction,
+        leaseLoanDeduction,
         cardDeduction,
         mortgageInterestDeduction,
         yellowUmbrellaDeduction,
@@ -1487,6 +1507,12 @@ export default function TaxCalculator() {
                       onInfoClick={handleInfoClick}
                     />
                     <DeductionRow
+                      label="전세자금대출 공제"
+                      value={calculatedResult.incomeDeductions.leaseLoanDeduction}
+                      infoKey="incomeDeduction.leaseLoanDeduction"
+                      onInfoClick={handleInfoClick}
+                    />
+                    <DeductionRow
                       label="장기주택저당차입금 이자상환액"
                       value={calculatedResult.incomeDeductions.mortgageInterestDeduction}
                       infoKey="incomeDeduction.mortgageInterestDeduction"
@@ -1606,15 +1632,13 @@ export default function TaxCalculator() {
                   <tbody className="divide-y divide-gray-100">
                     <DeductionRow
                       label="근로소득 원천징수세액"
-                      value={
-                        calculatedResult.flow.prepaidTax - (sideIncomeTax ? parseNumber(sideIncomeTax) : estimatedSideIncomeTax())
-                      }
+                      value={calculatedResult.flow.prepaidTax - estimatedSideIncomeTax()}
                       infoKey="prepaidTax.withholding"
                       onInfoClick={handleInfoClick}
                     />
                     <DeductionRow
                       label="부업 원천징수세액"
-                      value={sideIncomeTax ? parseNumber(sideIncomeTax) : estimatedSideIncomeTax()}
+                      value={estimatedSideIncomeTax()}
                       infoKey="prepaidTax.side"
                       onInfoClick={handleInfoClick}
                     />
@@ -1884,6 +1908,12 @@ export default function TaxCalculator() {
                           onInfoClick={handleInfoClick}
                         />
                         <DeductionRow
+                          label="전세자금대출 공제"
+                          value={calculatedResult.incomeDeductions.leaseLoanDeduction}
+                          infoKey="incomeDeduction.leaseLoanDeduction"
+                          onInfoClick={handleInfoClick}
+                        />
+                        <DeductionRow
                           label="장기주택저당차입금 이자상환액"
                           value={calculatedResult.incomeDeductions.mortgageInterestDeduction}
                           infoKey="incomeDeduction.mortgageInterestDeduction"
@@ -2003,16 +2033,13 @@ export default function TaxCalculator() {
                       <tbody className="divide-y divide-gray-100">
                         <DeductionRow
                           label="근로소득 원천징수세액"
-                          value={
-                            calculatedResult.flow.prepaidTax -
-                            (sideIncomeTax ? parseNumber(sideIncomeTax) : estimatedSideIncomeTax())
-                          }
+                          value={calculatedResult.flow.prepaidTax - estimatedSideIncomeTax()}
                           infoKey="prepaidTax.withholding"
                           onInfoClick={handleInfoClick}
                         />
                         <DeductionRow
                           label="부업 원천징수세액"
-                          value={sideIncomeTax ? parseNumber(sideIncomeTax) : estimatedSideIncomeTax()}
+                          value={estimatedSideIncomeTax()}
                           infoKey="prepaidTax.side"
                           onInfoClick={handleInfoClick}
                         />
@@ -2427,17 +2454,20 @@ export default function TaxCalculator() {
                     </div>
                   )}
 
-                  {/* 주택청약저축 */}
+                  {/* 주택담보대출 이자 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
-                      주택청약저축에 작년 한 해 얼마 넣었나요?
+                    <label className="block text-sm font-medium text-gray-800 mb-1">
+                      주택담보대출 이자로 낸 금액이 있나요?
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      주택담보대출을 받았다면 이자로 낸 금액을 알려주세요
+                    </p>
                     <div className="relative">
                       <input
                         type="text"
                         inputMode="numeric"
-                        value={housingSubscription}
-                        onChange={(e) => setHousingSubscription(formatNumber(e.target.value))}
+                        value={mortgageInterest}
+                        onChange={(e) => setMortgageInterest(formatNumber(e.target.value))}
                         placeholder="없으면 0"
                         className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
                       />
@@ -2446,6 +2476,53 @@ export default function TaxCalculator() {
                       </span>
                     </div>
                   </div>
+
+                  {isHousingOwner === true && (
+                    <>
+                      {/* 주택청약저축 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-800 mb-2">
+                          주택청약저축에 작년 한 해 얼마 넣었나요?
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={housingSubscription}
+                            onChange={(e) => setHousingSubscription(formatNumber(e.target.value))}
+                            placeholder="없으면 0"
+                            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
+                            원
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 전세자금대출 원리금 상환액 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-800 mb-1">
+                          전세자금대출 원리금 상환액
+                        </label>
+                        <p className="text-xs text-gray-500 mb-2">
+                          전세대출 원금 + 이자 상환액이에요. 연 400만원까지 공제돼요
+                        </p>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={leaseLoanRepayment}
+                            onChange={(e) => setLeaseLoanRepayment(formatNumber(e.target.value))}
+                            placeholder="없으면 0"
+                            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
+                            원
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </AccordionCard>
               )}
@@ -2651,29 +2728,6 @@ export default function TaxCalculator() {
                       <span className="text-sm text-gray-600">정확한 금액을 모르겠어요</span>
                     </label>
                   </div>
-
-                  {/* 주택담보대출 이자 */}
-                  <div className="pt-4 border-t border-gray-100">
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
-                      주택담보대출 이자로 낸 금액이 있나요?
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      주택담보대출을 받았다면 이자로 낸 금액을 알려주세요
-                    </p>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={mortgageInterest}
-                        onChange={(e) => setMortgageInterest(formatNumber(e.target.value))}
-                        placeholder="없으면 0"
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
-                        원
-                      </span>
-                    </div>
-                  </div>
                 </div>
               </AccordionCard>
               )}
@@ -2686,6 +2740,7 @@ export default function TaxCalculator() {
                 onToggle={() => toggleSection("taxpaid")}
               >
                 <div className="space-y-6">
+                  <p className="text-xs text-gray-500">앞서 입력하신 정보를 바탕으로 자동계산했어요.</p>
                   {/* 원천징수 세금 - 연말정산 결과 모를 때만 노출 */}
                   {knowsYearEndResult !== true && (
                   <div>
@@ -2714,42 +2769,6 @@ export default function TaxCalculator() {
                     </div>
                   </div>
                   )}
-
-                  {/* 부업 원천징수 세금 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
-                      부업 수입에서 떼인 세금
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      일반적으로 3.3%를 원천징수해요
-                    </p>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={sideIncomeTax || formatNumber(String(estimatedSideIncomeTax()))}
-                        onChange={(e) => setSideIncomeTax(formatNumber(e.target.value))}
-                        placeholder="0"
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
-                        원
-                      </span>
-                    </div>
-                    {/* 4.4% 토글 */}
-                    <label className="flex items-center gap-2 mt-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={use44Percent}
-                        onChange={(e) => {
-                          setUse44Percent(e.target.checked)
-                          setSideIncomeTax("") // 토글 시 재계산
-                        }}
-                        className="w-4 h-4 rounded border-gray-300 text-[#3182F6] focus:ring-[#3182F6]"
-                      />
-                      <span className="text-sm text-gray-600">4.4% 적용하기</span>
-                    </label>
-                  </div>
                 </div>
               </AccordionCard>
             </div>
