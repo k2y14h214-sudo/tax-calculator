@@ -17,6 +17,8 @@ function parseNumber(value: string): number {
   return Number(value.replace(/[^0-9]/g, "")) || 0
 }
 
+type WithholdingRate = 0.033 | 0.044 | 0.088 | 0
+
 // 결과 타입 정의
 interface TaxCalculationResult {
   // 최종 결과
@@ -140,6 +142,8 @@ export default function TaxCalculator() {
   // 카테고리 1: 소득 정보
   const [salary, setSalary] = useState("")
   const [sideIncome, setSideIncome] = useState("")
+  const [sideIncomeType, setSideIncomeType] = useState<"before" | "after">("after")
+  const [withholdingRate, setWithholdingRate] = useState<WithholdingRate>(0.033)
   const [incomeType, setIncomeType] = useState<"occasional" | "regular" | null>(null)
 
   // 카테고리 2: 가족 구성
@@ -473,9 +477,11 @@ export default function TaxCalculator() {
 
   // 부업소득 원천징수 (3.3% 또는 4.4%)
   const estimatedSideIncomeTax = () => {
-    const sideIncomeNum = parseNumber(sideIncome)
-    const rate = 0.033
-    return Math.round(sideIncomeNum * rate)
+    const rawSideIncome = parseNumber(sideIncome)
+    if (withholdingRate === 0) return 0
+    const sideIncomeNum =
+      sideIncomeType === "after" ? Math.round(rawSideIncome / (1 - withholdingRate)) : rawSideIncome
+    return Math.round(sideIncomeNum * withholdingRate)
   }
 
   // 아코디언 토글
@@ -504,12 +510,18 @@ export default function TaxCalculator() {
   const isTaxPaidComplete = withholdingTax !== "" || salary !== ""
 
   // CTA 버튼 활성화 조건
-  const canCalculate = !!salary
+  const canCalculate = !!salary && !!sideIncome && incomeType !== null
 
   // 세금 계산 함수
   const calculateTax = (): TaxCalculationResult => {
     const salaryNum = parseNumber(salary)
-    const sideIncomeNum = parseNumber(sideIncome)
+    const rawSideIncome = parseNumber(sideIncome)
+    const sideIncomeNum =
+      sideIncomeType === "after"
+        ? withholdingRate === 0
+          ? rawSideIncome
+          : Math.round(rawSideIncome / (1 - withholdingRate))
+        : rawSideIncome
     const pensionSavingsNum = parseNumber(pensionSavings)
     const irpNum = parseNumber(irp)
     const yellowUmbrellaNum = parseNumber(yellowUmbrella)
@@ -2084,7 +2096,7 @@ export default function TaxCalculator() {
             </p>
 
             {/* 연말정산 안내 배너 */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start justify-between gap-3 mb-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start justify-between gap-3">
               <p className="text-sm text-amber-800 leading-relaxed">
                 부업·프리랜서 수입이 없는 직장인이라면
               </p>
@@ -2188,12 +2200,31 @@ export default function TaxCalculator() {
 
                   {/* 부업 소득 입력 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">
-                      부업으로 번 돈이 얼마인가요?
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      세금 떼기 전 금액을 입력해주세요
-                    </p>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-800">
+                        부업으로 번 돈이 얼마인가요?
+                      </label>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setSideIncomeType("after")}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            sideIncomeType === "after" ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          세후
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSideIncomeType("before")}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            sideIncomeType === "before" ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          세전
+                        </button>
+                      </div>
+                    </div>
                     <div className="relative">
                       <input
                         type="text"
@@ -2206,6 +2237,49 @@ export default function TaxCalculator() {
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
                         원
                       </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-800 mb-1">원천징수율</label>
+                    <p className="text-xs text-gray-500 mb-3">부업 수입을 받을 때 떼인 세율이에요</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setWithholdingRate(0.033)}
+                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                          withholdingRate === 0.033 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        3.3% (프리랜서)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWithholdingRate(0.044)}
+                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                          withholdingRate === 0.044 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        4.4% (기타소득)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWithholdingRate(0.088)}
+                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                          withholdingRate === 0.088 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        8.8% (강의·원고료)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWithholdingRate(0)}
+                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                          withholdingRate === 0 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        없음
+                      </button>
                     </div>
                   </div>
 
