@@ -510,7 +510,7 @@ export default function TaxCalculator() {
   const isTaxPaidComplete = withholdingTax !== "" || salary !== ""
 
   // CTA 버튼 활성화 조건
-  const canCalculate = !!salary && !!sideIncome && incomeType !== null
+  const canCalculate = !!salary && !!sideIncome && incomeType !== null && knowsYearEndResult !== null
 
   // 세금 계산 함수
   const calculateTax = (): TaxCalculationResult => {
@@ -2200,15 +2200,15 @@ export default function TaxCalculator() {
 
                   {/* 부업 소득 입력 */}
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-medium text-gray-800">
-                        부업으로 번 돈이 얼마인가요?
-                      </label>
-                      <div className="flex gap-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                      부업으로 번 돈이 얼마인가요?
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 flex gap-1 z-10">
                         <button
                           type="button"
                           onClick={() => setSideIncomeType("after")}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                             sideIncomeType === "after" ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-500"
                           }`}
                         >
@@ -2217,22 +2217,20 @@ export default function TaxCalculator() {
                         <button
                           type="button"
                           onClick={() => setSideIncomeType("before")}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                             sideIncomeType === "before" ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-500"
                           }`}
                         >
                           세전
                         </button>
                       </div>
-                    </div>
-                    <div className="relative">
                       <input
                         type="text"
                         inputMode="numeric"
                         value={sideIncome}
                         onChange={(e) => setSideIncome(formatNumber(e.target.value))}
                         placeholder="예: 5,000,000"
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
+                        className="w-full pl-24 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:border-transparent text-right"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
                         원
@@ -2241,44 +2239,56 @@ export default function TaxCalculator() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-1">원천징수율</label>
-                    <p className="text-xs text-gray-500 mb-3">부업 수입을 받을 때 떼인 세율이에요</p>
-                    <div className="flex flex-wrap gap-2">
+                    <label className="block text-sm font-medium text-gray-800 mb-1">부업의 원천징수율</label>
+                    <p className="text-xs text-gray-500 mb-3">부업 수입을 받을 때 떼이는 세율이에요</p>
+                    <div className="grid grid-cols-4 border border-gray-200 rounded-xl overflow-hidden divide-x divide-gray-200">
                       <button
                         type="button"
                         onClick={() => setWithholdingRate(0.033)}
-                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
-                          withholdingRate === 0.033 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        className={`py-2.5 ${
+                          withholdingRate === 0.033 ? "bg-[#3182F6] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                         }`}
                       >
-                        3.3% (프리랜서)
+                        <div className="text-sm font-semibold text-center">3.3%</div>
+                        <div className={`text-[10px] text-center ${withholdingRate === 0.033 ? "text-blue-100" : "text-gray-400"}`}>
+                          프리랜서
+                        </div>
                       </button>
                       <button
                         type="button"
                         onClick={() => setWithholdingRate(0.044)}
-                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
-                          withholdingRate === 0.044 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        className={`py-2.5 ${
+                          withholdingRate === 0.044 ? "bg-[#3182F6] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                         }`}
                       >
-                        4.4% (기타소득)
+                        <div className="text-sm font-semibold text-center">4.4%</div>
+                        <div className={`text-[10px] text-center ${withholdingRate === 0.044 ? "text-blue-100" : "text-gray-400"}`}>
+                          기타소득
+                        </div>
                       </button>
                       <button
                         type="button"
                         onClick={() => setWithholdingRate(0.088)}
-                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
-                          withholdingRate === 0.088 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        className={`py-2.5 ${
+                          withholdingRate === 0.088 ? "bg-[#3182F6] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                         }`}
                       >
-                        8.8% (강의·원고료)
+                        <div className="text-sm font-semibold text-center">8.8%</div>
+                        <div className={`text-[10px] text-center ${withholdingRate === 0.088 ? "text-blue-100" : "text-gray-400"}`}>
+                          강의·원고료
+                        </div>
                       </button>
                       <button
                         type="button"
                         onClick={() => setWithholdingRate(0)}
-                        className={`rounded-lg px-3 py-2 text-sm font-medium ${
-                          withholdingRate === 0 ? "bg-[#3182F6] text-white" : "bg-gray-100 text-gray-700"
+                        className={`py-2.5 ${
+                          withholdingRate === 0 ? "bg-[#3182F6] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                         }`}
                       >
-                        없음
+                        <div className="text-sm font-semibold text-center">없음</div>
+                        <div className={`text-[10px] text-center ${withholdingRate === 0 ? "text-blue-100" : "text-gray-400"}`}>
+                          직접지급
+                        </div>
                       </button>
                     </div>
                   </div>
