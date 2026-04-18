@@ -398,14 +398,7 @@ export default function TaxCalculator() {
       debitCardNum = parseNumber(debitCardExpense)
     }
 
-    const pensionSavingsNum = parseNumber(pensionSavings)
-    const irpNum = parseNumber(irp)
-    const annualRentNum = parseNumber(annualRent)
     const housingSubscriptionNum = parseNumber(housingSubscription)
-    const medicalExpenseNum = parseNumber(medicalExpense)
-    const educationExpenseNum = parseNumber(educationExpense)
-    const donationNum = parseNumber(donation)
-    const insurancePremiumNum = parseNumber(insurancePremium)
     const mortgageInterestNum = parseNumber(mortgageInterest)
 
     // 1) 소득금액: 근로소득만
@@ -462,52 +455,7 @@ export default function TaxCalculator() {
 
     // 4) 세액공제
     const earnedIncomeTaxCredit = calculateEarnedIncomeCredit(calculatedTax, salaryNum)
-
-    let childTaxCredit = 0
-    if (childrenCount <= 0) childTaxCredit = 0
-    else if (childrenCount === 1) childTaxCredit = 150000
-    else if (childrenCount === 2) childTaxCredit = 350000
-    else childTaxCredit = 350000 + (childrenCount - 2) * 300000
-    childTaxCredit = Math.max(0, Math.round(childTaxCredit))
-
-    const pensionEligible = Math.min(Math.min(pensionSavingsNum, 6000000) + irpNum, 9000000)
-    const pensionRate = salaryNum <= 55000000 ? 0.15 : 0.12
-    const pensionSavingsCredit = Math.max(0, Math.round(pensionEligible * pensionRate))
-
-    const insuranceTaxCredit = Math.max(0, Math.round(Math.min(insurancePremiumNum, 1000000) * 0.12))
-
-    const medicalBase = Math.max(0, medicalExpenseNum - salaryNum * 0.03)
-    const medicalEligible = Math.min(medicalBase, 7000000)
-    const medicalCredit = Math.max(0, Math.round(medicalEligible * 0.15))
-
-    const educationCredit = Math.max(0, Math.round(educationExpenseNum * 0.15))
-
-    const donationCredit = Math.max(
-      0,
-      Math.round(Math.min(donationNum, 10000000) * 0.15 + Math.max(donationNum - 10000000, 0) * 0.3)
-    )
-
-    let rentCredit = 0
-    if (isRenting === true && isHousingOwner === true) {
-      const rentLimit = Math.min(annualRentNum, 10000000)
-      if (salaryNum <= 55000000) rentCredit = Math.round(rentLimit * 0.17)
-      else if (salaryNum <= 80000000) rentCredit = Math.round(rentLimit * 0.15)
-      else rentCredit = 0
-    }
-    rentCredit = Math.max(0, rentCredit)
-
-    const marriageCredit = Math.max(0, isNewlyMarried ? 500000 : 0)
-
-    const totalTaxCredit =
-      earnedIncomeTaxCredit +
-      childTaxCredit +
-      pensionSavingsCredit +
-      insuranceTaxCredit +
-      rentCredit +
-      medicalCredit +
-      educationCredit +
-      donationCredit +
-      marriageCredit
+    const totalTaxCredit = earnedIncomeTaxCredit
 
     // 결정세액(근로소득만)
     return Math.max(0, Math.round(calculatedTax - totalTaxCredit))
@@ -783,7 +731,7 @@ export default function TaxCalculator() {
       },
       flow: {
         totalIncome: totalIncomeAmount,
-        totalIncomeDeduction,
+        totalIncomeDeduction: earnedIncomeDeduction + totalIncomeDeduction,
         taxableIncome,
         calculatedTax,
         totalTaxCredit: Math.max(0, Math.round(totalTaxCredit)),
@@ -1455,7 +1403,7 @@ export default function TaxCalculator() {
                 />
                 <FlowSummaryRowWithInfo
                   label="- 세액공제"
-                  value={calculatedResult.flow.totalTaxCredit}
+                  value={Math.min(calculatedResult.flow.totalTaxCredit, calculatedResult.flow.calculatedTax)}
                   minus
                   infoKey="summary.taxCredit"
                   onInfoClick={handleInfoClick}
@@ -1852,7 +1800,7 @@ export default function TaxCalculator() {
                     />
                     <FlowSummaryRowWithInfo
                       label="- 세액공제"
-                      value={calculatedResult.flow.totalTaxCredit}
+                      value={Math.min(calculatedResult.flow.totalTaxCredit, calculatedResult.flow.calculatedTax)}
                       minus
                       infoKey="summary.taxCredit"
                       onInfoClick={handleInfoClick}
