@@ -133,7 +133,7 @@ export default function TaxCalculator() {
   const [resultTab, setResultTab] = useState<"summary" | "incomeDeduction" | "taxCredit" | "prepaidTax">("summary")
 
   // 연말정산 여부
-  const [knowsYearEndResult, setKnowsYearEndResult] = useState<boolean | null>(true)
+  const [knowsYearEndResult, setKnowsYearEndResult] = useState<boolean | null>(null)
   const [yearEndFinalTax, setYearEndFinalTax] = useState("")
 
   // 아코디언 상태
