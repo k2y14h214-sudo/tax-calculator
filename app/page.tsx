@@ -1353,22 +1353,24 @@ export default function TaxCalculator() {
               </div>
             )}
 
-            <div className="space-y-1 text-sm text-gray-500">
-              <p>
-                연말정산을 하셨다면{" "}
-                <span className={calculatedResult.withYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
-                  {calculatedResult.withYearEnd.amount.toLocaleString("ko-KR")}원{" "}
-                  {calculatedResult.withYearEnd.isRefund ? "환급" : "납부"}
-                </span>
-              </p>
-              <p>
-                연말정산을 안 하셨다면{" "}
-                <span className={calculatedResult.withoutYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
-                  {calculatedResult.withoutYearEnd.amount.toLocaleString("ko-KR")}원{" "}
-                  {calculatedResult.withoutYearEnd.isRefund ? "환급" : "납부"}
-                </span>
-              </p>
-            </div>
+            {knowsYearEndResult !== true && (
+              <div className="space-y-1 text-sm text-gray-500">
+                <p>
+                  연말정산을 하셨다면{" "}
+                  <span className={calculatedResult.withYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
+                    {calculatedResult.withYearEnd.amount.toLocaleString("ko-KR")}원{" "}
+                    {calculatedResult.withYearEnd.isRefund ? "환급" : "납부"}
+                  </span>
+                </p>
+                <p>
+                  연말정산을 안 하셨다면{" "}
+                  <span className={calculatedResult.withoutYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
+                    {calculatedResult.withoutYearEnd.amount.toLocaleString("ko-KR")}원{" "}
+                    {calculatedResult.withoutYearEnd.isRefund ? "환급" : "납부"}
+                  </span>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 중단: 탭 4개 */}
@@ -1754,22 +1756,24 @@ export default function TaxCalculator() {
                   {calculatedResult.final.amount.toLocaleString("ko-KR")}원
                 </p>
 
-                <div className="space-y-1 text-sm text-gray-500">
-                  <p>
-                    연말정산을 하셨다면{" "}
-                    <span className={calculatedResult.withYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
-                      {calculatedResult.withYearEnd.amount.toLocaleString("ko-KR")}원{" "}
-                      {calculatedResult.withYearEnd.isRefund ? "환급" : "납부"}
-                    </span>
-                  </p>
-                  <p>
-                    연말정산을 안 하셨다면{" "}
-                    <span className={calculatedResult.withoutYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
-                      {calculatedResult.withoutYearEnd.amount.toLocaleString("ko-KR")}원{" "}
-                      {calculatedResult.withoutYearEnd.isRefund ? "환급" : "납부"}
-                    </span>
-                  </p>
-                </div>
+                {knowsYearEndResult !== true && (
+                  <div className="space-y-1 text-sm text-gray-500">
+                    <p>
+                      연말정산을 하셨다면{" "}
+                      <span className={calculatedResult.withYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
+                        {calculatedResult.withYearEnd.amount.toLocaleString("ko-KR")}원{" "}
+                        {calculatedResult.withYearEnd.isRefund ? "환급" : "납부"}
+                      </span>
+                    </p>
+                    <p>
+                      연말정산을 안 하셨다면{" "}
+                      <span className={calculatedResult.withoutYearEnd.isRefund ? "text-blue-500" : "text-red-400"}>
+                        {calculatedResult.withoutYearEnd.amount.toLocaleString("ko-KR")}원{" "}
+                        {calculatedResult.withoutYearEnd.isRefund ? "환급" : "납부"}
+                      </span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* 중단: 탭 4개 */}
