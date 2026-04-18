@@ -133,7 +133,7 @@ export default function TaxCalculator() {
   const [resultTab, setResultTab] = useState<"summary" | "incomeDeduction" | "taxCredit" | "prepaidTax">("summary")
 
   // 연말정산 여부
-  const [knowsYearEndResult, setKnowsYearEndResult] = useState<boolean | null>(null)
+  const [knowsYearEndResult, setKnowsYearEndResult] = useState<boolean | null>(true)
   const [yearEndFinalTax, setYearEndFinalTax] = useState("")
 
   // 아코디언 상태
@@ -2867,7 +2867,7 @@ export default function TaxCalculator() {
 
         {/* CTA 버튼 (sticky) - 계산기 탭에서만 표시 */}
         {activeTab === "calculator" && !showResult && (
-          <div className="sticky bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur border-t border-gray-100">
+          <div className="sticky bottom-0 left-0 right-0 z-20 p-4 bg-white/95 backdrop-blur border-t border-gray-100">
             <button
               onClick={handleCalculate}
               disabled={!canCalculate}
